@@ -1,0 +1,190 @@
+{
+  "type": "object",
+  "properties": {
+    "product_name": { 
+      "type": "string", 
+      "description": "The official name of the AI product." 
+    },
+    "product_url": { 
+      "type": "string", 
+      "format": "uri", 
+      "description": "The main URL for the AI tool." 
+    },
+    "logo_img_url": { 
+      "type": "string", 
+      "format": "uri", 
+      "description": "URL of the product's logo image." 
+    },
+    "overview_img_url": { 
+      "type": "string", 
+      "format": "uri", 
+      "description": "URL of the main overview image or hero image." 
+    },
+    "short_introduction": { 
+      "type": "string", 
+      "description": "A brief, concise introduction or overview of the product." 
+    },
+    "product_story": { 
+      "type": "string", 
+      "description": "A longer, more detailed story or description of the product, often found in an 'About' section." 
+    },
+    "primary_task": { 
+      "type": "string", 
+      "description": "The primary function or main use case of the AI tool (e.g., 'Video Editor', 'Content Writer', 'Image Generator')." 
+    },
+    "author_company": { 
+      "type": "string", 
+      "description": "The name of the author or company that developed the AI tool." 
+    },
+    "popularity_score": { 
+      "type": "number", 
+      "description": "A numerical score indicating the tool's popularity." 
+    },
+    "general_price_tag": { 
+      "type": "string", 
+      "description": "A general tag indicating the pricing model (e.g., 'Free', 'Freemium', 'Paid', 'Contact for pricing')." 
+    },
+    "initial_release_date": { 
+      "type": "string", 
+      "format": "date", 
+      "description": "The date when the product was first released." 
+    },
+    "number_of_tools_by_author": { 
+      "type": "integer", 
+      "description": "The total number of tools developed by the same author/company." 
+    },
+    "average_rating": { 
+      "type": "number", 
+      "format": "float", 
+      "description": "The average user rating for the tool, typically out of 5." 
+    },
+    "rating_count": { 
+      "type": "integer", 
+      "description": "The total number of user ratings or reviews." 
+    },
+    "is_verified_tool": { 
+      "type": "boolean", 
+      "description": "True if the tool is marked as 'Verified', false otherwise." 
+    },
+    "inputs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "A list of data types or formats that the AI tool accepts as input (e.g., 'Text', 'Audio', 'Image')."
+    },
+    "outputs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "A list of data types or formats that the AI tool generates as output (e.g., 'Video', 'Code', 'Image')."
+    },
+    "pricing_details": {
+      "type": "object",
+      "properties": {
+        "pricing_model": { 
+          "type": "string", 
+          "description": "The specific pricing model (e.g., 'Subscription', 'One-time Purchase', 'Free Trial')." 
+        },
+        "paid_options_from": { 
+          "type": "number", 
+          "description": "The starting price for paid options." 
+        },
+        "currency": { 
+          "type": "string", 
+          "description": "The currency of the price (e.g., 'USD', 'EUR')." 
+        },
+        "billing_frequency": { 
+          "type": "string", 
+          "description": "The frequency of billing (e.g., 'Monthly', 'Annually', 'Per use')." 
+        }
+      },
+      "description": "Detailed information about the tool's pricing."
+    },
+    "releases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "release_date": { 
+            "type": "string", 
+            "format": "date", 
+            "description": "The date of this specific release." 
+          },
+          "release_notes": { 
+            "type": "string", 
+            "description": "Notes or summary of changes for this release." 
+          },
+          "release_author": { 
+            "type": "string", 
+            "description": "The author or team responsible for this release." 
+          }
+        },
+        "required": ["release_date", "release_notes"]
+      },
+      "description": "A list of new versions or updates released for the product."
+    },
+    "job_impacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "job_type": { 
+            "type": "string", 
+            "description": "The type of job or profession impacted (e.g., 'Content Creator', 'Graphic Designer')." 
+          },
+          "impact_description": { 
+            "type": "string", 
+            "description": "A description of how the tool impacts this job." 
+          },
+          "tasks_affected": { 
+            "type": "string", 
+            "description": "Specific tasks within the job that are affected." 
+          },
+          "ai_skills_required": { 
+            "type": "string", 
+            "description": "Any AI-related skills required to use the tool effectively in this job." 
+          }
+        },
+        "required": ["job_type"]
+      },
+      "description": "Information about how the AI tool impacts various job types."
+    },
+    "pros_list": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "A list of advantages or benefits of the AI tool."
+    },
+    "cons_list": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "A list of disadvantages or drawbacks of the AI tool."
+    },
+    "related_tasks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "A list of tasks related to the tool's functionality."
+    },
+    "alternative_tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { 
+            "type": "string", 
+            "description": "The name of an alternative AI tool." 
+          },
+          "url": { 
+            "type": "string", 
+            "format": "uri", 
+            "description": "The URL of the alternative AI tool." 
+          },
+          "relationship_type": { 
+            "type": "string", 
+            "description": "The type of relationship (e.g., 'Alternative', 'Most Popular Alternative', 'Featured Match')." 
+          }
+        },
+        "required": ["name", "url"]
+      },
+      "description": "A list of alternative AI tools."
+    }
+  },
+  "required": ["product_name", "product_url"]
+} 

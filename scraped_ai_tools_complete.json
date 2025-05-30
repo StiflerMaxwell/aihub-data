@@ -1,0 +1,42 @@
+[
+  {
+    "category": "AI Search Engine",
+    "product_name": "New Bing",
+    "url": "https://www.bing.com",
+    "scraped_successfully": false,
+    "scraped_data": null,
+    "scraped_fields_count": 0
+  },
+  {
+    "category": "AI ChatBots",
+    "product_name": "ChatGPT",
+    "url": "https://chat.openai.com",
+    "scraped_successfully": false,
+    "scraped_data": null,
+    "scraped_fields_count": 0
+  },
+  {
+    "category": "AI Character Generator",
+    "product_name": "Character AI",
+    "url": "https://character.ai/",
+    "scraped_successfully": false,
+    "scraped_data": null,
+    "scraped_fields_count": 0
+  },
+  {
+    "category": "AI Presentation Maker",
+    "product_name": "Gamma",
+    "url": "https://gamma.app",
+    "scraped_successfully": false,
+    "scraped_data": null,
+    "scraped_fields_count": 0
+  },
+  {
+    "category": "AI Image Generator",
+    "product_name": "SeaArt",
+    "url": "https://www.seaart.ai",
+    "scraped_successfully": false,
+    "scraped_data": null,
+    "scraped_fields_count": 0
+  }
+]
