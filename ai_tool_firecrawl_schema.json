@@ -22,7 +22,7 @@
     },
     "short_introduction": { 
       "type": "string", 
-      "description": "A brief, concise introduction or overview of the product." 
+      "description": "A brief, concise introduction or overview of the product for post_content." 
     },
     "product_story": { 
       "type": "string", 
@@ -53,18 +53,25 @@
       "type": "integer", 
       "description": "The total number of tools developed by the same author/company." 
     },
-    "average_rating": { 
-      "type": "number", 
-      "format": "float", 
-      "description": "The average user rating for the tool, typically out of 5." 
-    },
-    "rating_count": { 
-      "type": "integer", 
-      "description": "The total number of user ratings or reviews." 
+    "message": { 
+      "type": "string", 
+      "description": "A welcome message or brief description about the tool." 
     },
     "is_verified_tool": { 
       "type": "boolean", 
       "description": "True if the tool is marked as 'Verified', false otherwise." 
+    },
+    "copy_url_text": { 
+      "type": "string", 
+      "description": "Text for copy URL functionality." 
+    },
+    "save_button_text": { 
+      "type": "string", 
+      "description": "Text displayed on save button." 
+    },
+    "vote_best_ai_tool_text": { 
+      "type": "string", 
+      "description": "Text for voting as best AI tool." 
     },
     "inputs": {
       "type": "array",
@@ -103,23 +110,59 @@
       "items": {
         "type": "object",
         "properties": {
+          "product_name": { 
+            "type": "string", 
+            "description": "Product name for this specific release or version (may differ from main product name)." 
+          },
           "release_date": { 
             "type": "string", 
             "format": "date", 
-            "description": "The date of this specific release." 
+            "description": "The date of this specific release, version, or update." 
           },
           "release_notes": { 
             "type": "string", 
-            "description": "Notes or summary of changes for this release." 
+            "description": "Release notes, version notes, update summary, changelog, or what's new in this version." 
           },
           "release_author": { 
             "type": "string", 
-            "description": "The author or team responsible for this release." 
+            "description": "The author, company, or team responsible for this release." 
           }
-        },
-        "required": ["release_date", "release_notes"]
+        }
       },
-      "description": "A list of new versions or updates released for the product."
+      "description": "A list of product versions, releases, updates, or changelogs. Look for: 'What's New', 'Version History', 'Release Notes', 'Changelog', 'Updates', version numbers (e.g., v1.0, 2.0), update announcements, or any mention of new features and improvements with dates."
+    },
+    "user_ratings_count": { 
+      "type": "integer", 
+      "description": "The total number of user ratings or reviews." 
+    },
+    "how_would_you_rate_text": { 
+      "type": "string", 
+      "description": "Text asking users how they would rate the tool." 
+    },
+    "help_other_people_text": { 
+      "type": "string", 
+      "description": "Text encouraging users to help others by rating." 
+    },
+    "your_rating_text": { 
+      "type": "string", 
+      "description": "Text label for user rating input." 
+    },
+    "post_review_button_text": { 
+      "type": "string", 
+      "description": "Text on the post review button." 
+    },
+    "feature_requests_intro": { 
+      "type": "string", 
+      "description": "Introduction text for feature requests section." 
+    },
+    "request_feature_button_text": { 
+      "type": "string", 
+      "description": "Text on the request feature button." 
+    },
+    "average_rating": { 
+      "type": "number", 
+      "format": "float", 
+      "description": "The average user rating for the tool, typically out of 5." 
     },
     "job_impacts": {
       "type": "array",
@@ -142,8 +185,7 @@
             "type": "string", 
             "description": "Any AI-related skills required to use the tool effectively in this job." 
           }
-        },
-        "required": ["job_type"]
+        }
       },
       "description": "Information about how the AI tool impacts various job types."
     },
@@ -157,33 +199,45 @@
       "items": { "type": "string" },
       "description": "A list of disadvantages or drawbacks of the AI tool."
     },
+    "view_more_pros_text": { 
+      "type": "string", 
+      "description": "Text for view more pros button." 
+    },
+    "view_more_cons_text": { 
+      "type": "string", 
+      "description": "Text for view more cons button." 
+    },
     "related_tasks": {
       "type": "array",
       "items": { "type": "string" },
       "description": "A list of tasks related to the tool's functionality."
     },
+    "alternatives_count_text": { 
+      "type": "string", 
+      "description": "Text showing number of alternatives available." 
+    },
     "alternative_tools": {
       "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": { 
-            "type": "string", 
-            "description": "The name of an alternative AI tool." 
-          },
-          "url": { 
-            "type": "string", 
-            "format": "uri", 
-            "description": "The URL of the alternative AI tool." 
-          },
-          "relationship_type": { 
-            "type": "string", 
-            "description": "The type of relationship (e.g., 'Alternative', 'Most Popular Alternative', 'Featured Match')." 
-          }
-        },
-        "required": ["name", "url"]
-      },
-      "description": "A list of alternative AI tools."
+      "items": { "type": "string" },
+      "description": "A list of alternative AI tool names."
+    },
+    "view_more_alternatives_text": { 
+      "type": "string", 
+      "description": "Text for view more alternatives button." 
+    },
+    "if_you_liked_text": { 
+      "type": "string", 
+      "description": "Text introducing recommended tools section." 
+    },
+    "featured_matches": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "A list of featured matching AI tool names."
+    },
+    "other_tools": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "A list of other related AI tool names."
     }
   },
   "required": ["product_name", "product_url"]

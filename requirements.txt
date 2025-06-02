@@ -1,3 +1,16 @@
+# AI工具数据导入系统依赖包
+
+# 基础依赖
 requests>=2.31.0
-urllib3>=2.0.0
-python-dotenv>=1.0.0 
+python-dotenv>=1.0.0
+
+# CSV处理
+csv
+
+# JSON处理 (Python内置)
+
+# Gemini AI增强 (可选)
+google-generativeai>=0.3.0
+
+# 其他工具
+urllib3>=2.0.0 

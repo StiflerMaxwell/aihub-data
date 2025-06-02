@@ -1,8 +1,5 @@
 # 环境变量文件
-.env
-.env.local
-.env.*.local
-
+  
 # Python相关
 __pycache__/
 *.py[cod]
