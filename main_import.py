@@ -117,6 +117,7 @@ def main():
         
         # Firecrawl抓取器
         enable_firecrawl = config.ENABLE_FIRECRAWL if hasattr(config, 'ENABLE_FIRECRAWL') else True
+        firecrawl_failed = False
         
         if enable_firecrawl:
             try:
@@ -146,59 +147,101 @@ def main():
         # 4. 处理阶段：抓取 + 增强 或 直接处理CSV数据
         logger.info("\n步骤3: 数据处理")
         
-        if enable_firecrawl and firecrawl_scraper:
-            logger.info(f"开始并发处理 {len(tools_list)} 个工具...")
+        if enable_firecrawl and firecrawl_scraper and not firecrawl_failed:
+            logger.info(f"开始处理 {len(tools_list)} 个工具 (使用Firecrawl抓取)...")
+            logger.warning("💡 免费计划限制: 每分钟最多10次抓取，建议耐心等待")
+            
             processor = AsyncToolProcessor()
             
             # 使用串行处理以避免Firecrawl API并发限制
-            max_workers = 1  # 改为串行处理，避免并发限制导致的402错误
-            logger.info("使用串行处理以避免API并发限制...")
-            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-                # 提交所有任务
-                futures = []
-                for tool_data in tools_list:
-                    future = executor.submit(processor.process_single_tool, tool_data, firecrawl_scraper, schema)
-                    futures.append(future)
-                
-                # 等待所有任务完成
-                logger.info("使用串行处理模式...")
-                concurrent.futures.wait(futures)
+            max_workers = 1  # 串行处理，避免并发限制导致的402错误
+            logger.info("使用串行处理以遵守API速率限制...")
             
-            enhanced_tools = processor.enhanced_tools
+            enhanced_tools = []
+            api_failed_count = 0
+            
+            for i, tool_data in enumerate(tools_list, 1):
+                try:
+                    logger.info(f"[{i}/{len(tools_list)}] 开始处理: {tool_data.get('product_name', 'Unknown')}")
+                    
+                    # 抓取网站数据
+                    scrape_result = firecrawl_scraper.scrape_single(tool_data, schema)
+                    
+                    if scrape_result['status'] == 'success':
+                        enhanced_data = scrape_result['data']
+                        
+                        # Gemini增强（如果启用）
+                        if config.ENABLE_GEMINI_ENHANCEMENT and gemini_enhancer.is_enabled():
+                            logger.debug(f"Gemini增强: {enhanced_data.get('product_name', 'Unknown')}")
+                            enhanced_data = gemini_enhancer.enhance_tool_data(enhanced_data)
+                        
+                        # Favicon增强
+                        enhanced_data = favicon_helper.enhance_tool_with_favicon(enhanced_data)
+                        
+                        # Screenshot增强
+                        enhanced_data = screenshot_helper.enhance_tool_with_screenshot(enhanced_data)
+                        
+                        enhanced_tools.append(enhanced_data)
+                        logger.success(f"✓ 完成处理 [{i}]: {enhanced_data.get('product_name', 'Unknown')}")
+                        
+                    elif "402" in scrape_result.get('message', ''):
+                        # API额度不足，询问用户是否继续
+                        api_failed_count += 1
+                        logger.error(f"💳 API额度不足，已失败 {api_failed_count} 次")
+                        
+                        if api_failed_count >= 3:  # 连续失败3次，建议切换模式
+                            logger.error("\n" + "="*50)
+                            logger.error("🚫 Firecrawl API连续失败，建议切换处理模式")
+                            logger.error("="*50)
+                            logger.info("💡 解决方案:")
+                            logger.info("  1. 稍后再试 (等待额度重置)")
+                            logger.info("  2. 升级Firecrawl付费计划")
+                            logger.info("  3. 自动切换到基础模式继续处理")
+                            
+                            # 自动切换到基础模式
+                            logger.warning("⚠️  自动切换到基础模式，使用CSV数据继续处理...")
+                            firecrawl_failed = True
+                            break
+                        else:
+                            # 创建基础数据继续处理
+                            basic_data = create_basic_tool_data(tool_data)
+                            basic_data = enhance_basic_tool(basic_data)
+                            enhanced_tools.append(basic_data)
+                            logger.info(f"📋 使用基础数据继续: {basic_data.get('product_name', 'Unknown')}")
+                    else:
+                        # 其他错误，使用基础数据
+                        basic_data = create_basic_tool_data(tool_data)
+                        basic_data = enhance_basic_tool(basic_data)
+                        enhanced_tools.append(basic_data)
+                        logger.warning(f"⚠️  抓取失败，使用基础数据: {basic_data.get('product_name', 'Unknown')}")
+                        
+                except Exception as e:
+                    logger.error(f"处理工具失败 {tool_data.get('product_name', 'Unknown')}: {e}")
+                    # 创建基础数据
+                    basic_data = create_basic_tool_data(tool_data)
+                    basic_data = enhance_basic_tool(basic_data)
+                    enhanced_tools.append(basic_data)
+            
+            # 如果切换到基础模式，处理剩余工具
+            if firecrawl_failed and i < len(tools_list):
+                logger.info(f"\n切换到基础模式，处理剩余 {len(tools_list) - i} 个工具...")
+                for remaining_tool in tools_list[i:]:
+                    basic_data = create_basic_tool_data(remaining_tool)
+                    basic_data = enhance_basic_tool(basic_data)
+                    enhanced_tools.append(basic_data)
+                    logger.success(f"✓ 基础处理完成: {basic_data.get('product_name', 'Unknown')}")
+            
             logger.success(f"完成 {len(enhanced_tools)} 个工具的处理")
         else:
+            # 使用基础模式
             logger.info("使用CSV基础数据进行处理...")
             enhanced_tools = []
             
             for tool_data in tools_list:
-                # 直接从CSV数据创建基础工具信息
-                enhanced_tool = {
-                    'product_name': tool_data['product_name'],
-                    'product_url': tool_data['url'],
-                    'category': tool_data['category'],
-                    'original_category_name': tool_data['category'],
-                    'short_introduction': f"This is an {tool_data['category']} AI tool.",
-                    'general_price_tag': 'Unknown',
-                    'inputs': ['Text'],  # 默认输入类型
-                    'outputs': ['Text'], # 默认输出类型
-                    'description': f"{tool_data['product_name']} is an {tool_data['category']} tool.",
-                    'features': [],
-                    'pricing_plans': []
-                }
-                
-                # Gemini增强（如果启用）
-                if config.ENABLE_GEMINI_ENHANCEMENT and gemini_enhancer.is_enabled():
-                    logger.debug(f"Gemini增强: {enhanced_tool['product_name']}")
-                    enhanced_tool = gemini_enhancer.enhance_tool_data(enhanced_tool)
-                
-                # Favicon增强
-                enhanced_tool = favicon_helper.enhance_tool_with_favicon(enhanced_tool)
-                
-                # Screenshot增强
-                enhanced_tool = screenshot_helper.enhance_tool_with_screenshot(enhanced_tool)
-                
-                enhanced_tools.append(enhanced_tool)
-                logger.success(f"✓ 处理完成: {enhanced_tool['product_name']}")
+                basic_data = create_basic_tool_data(tool_data)
+                basic_data = enhance_basic_tool(basic_data)
+                enhanced_tools.append(basic_data)
+                logger.success(f"✓ 处理完成: {basic_data['product_name']}")
             
             logger.success(f"完成 {len(enhanced_tools)} 个工具的基础处理")
         
@@ -235,6 +278,13 @@ def main():
             logger.success(f"🎉 成功导入 {successful_imports} 个AI工具!")
             logger.info("请登录WordPress后台查看aihub文章类型")
         
+        # 使用建议
+        if firecrawl_failed or not enable_firecrawl:
+            logger.info("\n💡 使用建议:")
+            logger.info("  • 如需更丰富的数据，建议升级Firecrawl付费计划")
+            logger.info("  • 当前使用基础模式，数据来源于CSV和Gemini增强")
+            logger.info("  • 已自动获取favicon和截图来增强工具信息")
+        
         logger.info("=" * 60)
         logger.info("AI工具数据导入系统完成")
         logger.info("=" * 60)
@@ -247,6 +297,37 @@ def main():
     except Exception as e:
         logger.error(f"执行过程中发生错误: {e}")
         return False
+
+def create_basic_tool_data(tool_data):
+    """从CSV数据创建基础工具信息"""
+    return {
+        'product_name': tool_data['product_name'],
+        'product_url': tool_data['url'],
+        'category': tool_data['category'],
+        'original_category_name': tool_data['category'],
+        'short_introduction': f"This is an {tool_data['category']} AI tool.",
+        'general_price_tag': 'Unknown',
+        'inputs': ['Text'],  # 默认输入类型
+        'outputs': ['Text'], # 默认输出类型
+        'description': f"{tool_data['product_name']} is an {tool_data['category']} tool.",
+        'features': [],
+        'pricing_plans': []
+    }
+
+def enhance_basic_tool(tool_data):
+    """增强基础工具数据"""
+    # Gemini增强（如果启用）
+    if config.ENABLE_GEMINI_ENHANCEMENT and gemini_enhancer.is_enabled():
+        logger.debug(f"Gemini增强: {tool_data['product_name']}")
+        tool_data = gemini_enhancer.enhance_tool_data(tool_data)
+    
+    # Favicon增强
+    tool_data = favicon_helper.enhance_tool_with_favicon(tool_data)
+    
+    # Screenshot增强
+    tool_data = screenshot_helper.enhance_tool_with_screenshot(tool_data)
+    
+    return tool_data
 
 if __name__ == "__main__":
     success = main()

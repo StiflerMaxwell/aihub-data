@@ -37,16 +37,16 @@ class Config:
             self.WP_CUSTOM_API_BASE_URL = ""
         
         # === 功能开关 ===
-        self.ENABLE_FIRECRAWL = self._get_bool('ENABLE_FIRECRAWL', True)
+        self.ENABLE_FIRECRAWL = self._get_bool('ENABLE_FIRECRAWL', False)
         self.ENABLE_GEMINI_ENHANCEMENT = self._get_bool('ENABLE_GEMINI_ENHANCEMENT', True)
         self.DEBUG_MODE = self._get_bool('DEBUG_MODE', True)
         
         # === 处理参数 ===
         self.MAX_TOOLS_TO_PROCESS = self._get_int('MAX_TOOLS_TO_PROCESS', None)
-        self.SCRAPE_DELAY = self._get_float('SCRAPE_DELAY', 2.0)
+        self.SCRAPE_DELAY = self._get_float('SCRAPE_DELAY', 3.0)
         self.IMPORT_DELAY = self._get_float('IMPORT_DELAY', 1.0)
         self.REQUEST_TIMEOUT = self._get_int('REQUEST_TIMEOUT', 30)
-        self.FIRECRAWL_TIMEOUT = self._get_int('FIRECRAWL_TIMEOUT', 120)
+        self.FIRECRAWL_TIMEOUT = self._get_int('FIRECRAWL_TIMEOUT', 30)
         
         # === 文件路径 ===
         self.INPUT_CSV_FILE = 'AI工具汇总-工作表2.csv'

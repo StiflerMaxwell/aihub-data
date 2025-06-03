@@ -1,35 +1,55 @@
-# AI工具数据导入系统
+# AI工具数据导入系统 🚀
 
-一个完整的AI工具数据自动化处理系统，支持从CSV文件解析、网站数据抓取、AI内容增强到WordPress导入的全流程自动化。
+一个完整的AI工具数据自动化处理系统，支持从CSV文件解析、网站数据抓取、AI内容增强到WordPress导入的全流程自动化，并提供强大的API服务。
 
-## 功能特色
+## ✨ 功能特色
 
-- 🔄 **全自动化流程**: CSV解析 → Firecrawl抓取 → Gemini增强 → Favicon获取 → WordPress导入
+- 🔄 **全自动化流程**: CSV解析 → Firecrawl抓取 → Gemini增强 → 图像获取 → WordPress导入
 - 🤖 **AI智能增强**: 使用Gemini AI自动生成产品描述、优缺点分析等
 - 🌐 **网站数据抓取**: 基于Firecrawl API的结构化数据抓取
 - 🖼️ **图像资源处理**: 自动获取网站favicon和logo
 - 📊 **WordPress集成**: 完整的ACF字段支持和自定义文章类型
+- 🚀 **强大API服务**: 完整的RESTful API，支持30+字段数据查询
 - ⚙️ **灵活配置**: 环境变量配置，支持调试模式和批量限制
+- 🔧 **模块化设计**: 清晰的组件分离，易于维护和扩展
 
-## 系统架构
+## 🏗️ 系统架构
 
+### 数据处理流程
 ```
-CSV数据 → 数据解析 → Firecrawl抓取 → Gemini增强 → Favicon获取 → WordPress导入
+CSV数据解析 → Firecrawl抓取 → Gemini增强 → 图像获取 → WordPress导入
 ```
 
-### 核心组件
+### API服务架构
+```
+WordPress API插件 → 认证验证 → 数据查询 → JSON响应
+```
 
-- **config.py**: 统一配置管理
-- **logger.py**: 日志管理系统
+## 📁 项目结构
+
+### 🔄 数据处理核心
 - **csv_data_processor.py**: CSV数据解析器
-- **firecrawl_scraper.py**: Firecrawl网站抓取器
-- **gemini_enhancer.py**: Gemini AI数据增强器
-- **favicon_logo_helper.py**: Favicon和Logo获取器
-- **wordpress_importer.py**: WordPress数据导入器
-- **main_import.py**: 主导入脚本
-- **test_system.py**: 系统测试脚本
+- **firecrawl_scraper.py**: 网站数据抓取器  
+- **gemini_enhancer.py**: AI数据增强器
+- **favicon_logo_helper.py**: 图像资源获取器
+- **screenshot_helper.py**: 截图助手
 
-## 快速开始
+### 🚀 主要执行脚本
+- **main_import.py**: 完整导入流程脚本
+- **main_import_simple.py**: 简化导入流程脚本
+- **wordpress_importer.py**: WordPress数据导入器
+
+### 🔧 API核心功能
+- **wordpress_custom_api_fixed.php**: 完整WordPress API插件
+- **test_api_usage.py**: API功能测试脚本
+- **manage_api_keys.py**: API Key管理工具
+
+### ⚙️ 系统配置
+- **config.py**: 配置管理系统
+- **logger.py**: 日志管理系统
+- **requirements.txt**: Python依赖包
+
+## 🚀 快速开始
 
 ### 1. 环境准备
 
@@ -69,33 +89,78 @@ SCRAPE_DELAY=2
 IMPORT_DELAY=1
 ```
 
-### 3. WordPress准备
+### 3. WordPress设置
 
 确保WordPress已安装并配置：
 
 1. **自定义文章类型**: 创建 `aihub` CPT
 2. **ACF字段组**: 配置相应的自定义字段
-3. **自定义API插件**: 安装 `wordpress_custom_api.php` 插件
+3. **API插件安装**: 上传 `wordpress_custom_api_fixed.php` 到插件目录并激活
 4. **应用密码**: 为WordPress用户生成应用密码
 
 ### 4. 数据准备
 
-将AI工具数据整理到CSV文件中，确保格式正确：
-
-- 文件名: `AI工具汇总-工作表2.csv`
-- 格式: 横向分类格式，包含产品名称和网址列
+系统包含示例数据文件：
+- **AI工具汇总-工作表2.csv**: 原始AI工具数据
+- **ai_tool_firecrawl_schema.json**: Firecrawl抓取字段定义
 
 ### 5. 运行系统
 
 ```bash
-# 运行系统测试
-python test_system.py
-
-# 执行完整导入流程
+# 完整数据导入流程
 python main_import.py
+
+# 简化导入流程  
+python main_import_simple.py
+
+# API功能测试
+python test_api_usage.py
+
+# API Key管理
+python manage_api_keys.py
 ```
 
-## 详细配置
+## 🔧 API服务功能
+
+### API端点
+
+| 端点 | 功能 | 示例 |
+|------|------|------|
+| `/wp-json/ai-tools/v1/tools` | 获取工具列表 | 支持分页、搜索、筛选 |
+| `/wp-json/ai-tools/v1/tools/{id}` | 获取单个工具详情 | 完整的30+字段数据 |
+| `/wp-json/ai-tools/v1/tools/by-url` | 通过URL查找工具 | URL匹配查询 |
+| `/wp-json/ai-tools/v1/tools/random` | 随机工具推荐 | 随机返回工具 |
+| `/wp-json/ai-tools/v1/tools/popular` | 热门工具排行 | 按热度排序 |
+| `/wp-json/ai-tools/v1/categories` | 获取分类列表 | 所有AI工具分类 |
+| `/wp-json/ai-tools/v1/tags` | 获取标签列表 | 所有工具标签 |
+| `/wp-json/ai-tools/v1/stats` | 获取统计信息 | 总数、分类统计等 |
+
+### 认证方式
+
+支持三种API认证方式：
+
+```bash
+# 1. X-API-Key 头部认证（推荐）
+curl -H "X-API-Key: ak_your_api_key_here" \
+     "https://yourdomain.com/wp-json/ai-tools/v1/tools"
+
+# 2. Authorization Bearer 头部认证
+curl -H "Authorization: Bearer ak_your_api_key_here" \
+     "https://yourdomain.com/wp-json/ai-tools/v1/tools"
+
+# 3. URL参数认证
+curl "https://yourdomain.com/wp-json/ai-tools/v1/tools?api_key=ak_your_api_key_here"
+```
+
+### 高级功能
+
+- **智能搜索**: 全文搜索工具名称和描述
+- **多维筛选**: 按定价、分类、输入输出类型筛选
+- **数据统计**: 获取详细的统计信息
+- **速率限制**: 支持API调用频率控制
+- **CORS支持**: 支持跨域访问
+
+## ⚙️ 详细配置
 
 ### 环境变量说明
 
@@ -112,63 +177,63 @@ python main_import.py
 | `SCRAPE_DELAY` | 否 | 抓取延迟秒数（默认2） |
 | `IMPORT_DELAY` | 否 | 导入延迟秒数（默认1） |
 
-### WordPress ACF字段结构
+### 支持的数据字段（30+字段）
 
-系统支持以下ACF字段组：
+- **基础信息**: 产品名称、官网URL、Logo图片、公司信息
+- **功能特性**: 输入输出类型、定价详情、功能列表
+- **评价数据**: 用户评分、热度评分、验证状态
+- **AI增强**: 智能描述、优缺点分析、工作影响评估
+- **关联数据**: 替代工具、相关推荐、标签分类
 
-1. **AI Tool Basic Info**: 基础信息字段
-2. **AI Tool IO**: 输入输出类型
-3. **AI Tool Pricing**: 定价信息
-4. **AI Tool Releases**: 版本发布历史
-5. **AI Tool Reviews**: 评论和评分
-6. **AI Tool Job Impacts**: 工作影响分析
-7. **AI Tool Pros & Cons**: 优缺点列表
-8. **AI Tool Alternatives**: 替代工具
-9. **AI Tool See Also**: 相关推荐
+## 📖 使用示例
 
-## 使用示例
-
-### 基本使用
+### 数据导入示例
 
 ```bash
-# 测试系统配置
-python test_system.py
-
-# 运行完整导入（处理所有工具）
-python main_import.py
-```
-
-### 调试模式
-
-```bash
-# 设置环境变量启用调试
+# 调试模式（处理少量数据）
 export DEBUG_MODE=true
 export MAX_TOOLS_TO_PROCESS=3
+python main_import.py
 
-# 运行导入
+# 生产模式（处理全部数据）
+export DEBUG_MODE=false
 python main_import.py
 ```
 
-### 单独测试组件
+### API使用示例
+
+```python
+import requests
+
+# 获取所有工具
+response = requests.get(
+    "https://yourdomain.com/wp-json/ai-tools/v1/tools",
+    headers={"X-API-Key": "ak_your_api_key_here"}
+)
+
+# 搜索工具
+response = requests.get(
+    "https://yourdomain.com/wp-json/ai-tools/v1/tools",
+    params={"search": "ChatGPT", "pricing": "Free"},
+    headers={"X-API-Key": "ak_your_api_key_here"}
+)
+```
+
+### 组件测试示例
 
 ```python
 # 测试CSV解析
 from csv_data_processor import parse_ai_tools_csv
 tools = parse_ai_tools_csv('AI工具汇总-工作表2.csv')
 
-# 测试Firecrawl抓取
-from firecrawl_scraper import FirecrawlScraper
-scraper = FirecrawlScraper()
-schema = scraper.load_schema()
-result = scraper.scrape_website('https://chat.openai.com', schema)
+# 测试API功能
+python test_api_usage.py
 
-# 测试WordPress连接
-from wordpress_importer import WordPressImporter
-importer = WordPressImporter()
-importer.test_connection()
+# 管理API Key
+python manage_api_keys.py
 ```
 
-## 故障排除
+## 🔍 故障排除
 
 ### 常见问题
 
@@ -178,7 +243,7 @@ importer.test_connection()
 
 2. **WordPress连接失败**
    - 验证WordPress URL和认证信息
-   - 确认自定义API插件已安装并激活
+   - 确认API插件已安装并激活
    - 检查用户权限和应用密码
 
 3. **Firecrawl抓取失败**
@@ -186,69 +251,49 @@ importer.test_connection()
    - 检查网络连接和API配额
    - 确认Schema文件格式正确
 
-4. **Gemini增强失败**
-   - 验证Gemini API密钥
-   - 检查API配额和网络连接
-   - 可以禁用Gemini增强继续使用
+4. **API访问失败**
+   - 检查API Key是否有效
+   - 验证WordPress插件是否正确安装
+   - 确认用户权限设置
 
 ### 日志查看
 
-系统会自动生成详细的日志文件：
+系统会自动生成详细的日志：
 
 ```bash
-# 查看日志
+# 查看导入日志
 tail -f import_log.txt
 
-# 查看最近的错误
-grep "ERROR" import_log.txt
+# 查看API日志
+# 检查WordPress错误日志
 ```
 
-## 开发指南
+## 📚 文档资源
 
-### 扩展新功能
+- **API_Documentation.md**: 完整的API使用文档
+- **API_功能总结.md**: API功能特性总结
+- **项目功能总结.md**: 整体项目功能介绍
+- **最终项目结构.md**: 项目结构说明
 
-1. **添加新的数据源**
-   - 在相应的抓取器中添加新方法
-   - 更新Schema定义
+## 🤝 贡献指南
 
-2. **增加新的增强器**
-   - 创建新的增强器类
-   - 在主流程中集成
+1. Fork 本项目
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 打开 Pull Request
 
-3. **自定义WordPress字段**
-   - 更新ACF字段定义
-   - 修改导入器的字段映射
+## 📄 许可证
 
-### 代码结构
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
 
-```
-├── config.py              # 配置管理
-├── logger.py               # 日志系统
-├── csv_data_processor.py   # CSV解析
-├── firecrawl_scraper.py    # 网站抓取
-├── gemini_enhancer.py      # AI增强
-├── favicon_logo_helper.py  # 图像获取
-├── wordpress_importer.py   # WordPress导入
-├── main_import.py          # 主程序
-├── test_system.py          # 系统测试
-├── requirements.txt        # 依赖包
-├── env.example            # 配置示例
-└── README.md              # 说明文档
-```
+## 🙏 致谢
 
-## 许可证
+- [Firecrawl](https://firecrawl.dev/) - 网站数据抓取服务
+- [Google Gemini](https://gemini.google.com/) - AI内容增强服务
+- [WordPress](https://wordpress.org/) - 内容管理系统
+- [ACF](https://www.advancedcustomfields.com/) - 高级自定义字段插件
 
-MIT License
+---
 
-## 贡献
-
-欢迎提交Issue和Pull Request来改进这个项目。
-
-## 支持
-
-如果遇到问题，请：
-
-1. 查看日志文件获取详细错误信息
-2. 运行系统测试检查各组件状态
-3. 检查配置文件和环境变量
-4. 提交Issue描述问题和环境信息 
+⭐ 如果这个项目对您有帮助，请给它一个星标！ 
