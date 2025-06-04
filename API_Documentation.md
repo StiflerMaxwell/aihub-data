@@ -43,6 +43,67 @@ curl "https://vertu.com/wp-json/ai-tools/v1/tools?api_key=YOUR_API_KEY"
 
 ---
 
+## 🌐 **CORS跨域支持**
+
+### **完整CORS配置**
+
+API现在提供**完整的CORS跨域支持**，允许从任何域名的前端应用访问：
+
+- ✅ **Access-Control-Allow-Origin**: `*` （允许所有域名）
+- ✅ **Access-Control-Allow-Methods**: `GET, POST, PUT, DELETE, OPTIONS`
+- ✅ **Access-Control-Allow-Headers**: `X-API-Key, Authorization, Content-Type, Accept`
+- ✅ **Access-Control-Expose-Headers**: `X-Total-Count, X-Total-Pages`
+- ✅ **预检请求支持**: 自动处理OPTIONS请求
+
+### **前端JavaScript使用示例**
+
+```javascript
+// 标准fetch请求
+const response = await fetch('https://vertu.com/wp-json/ai-tools/v1/tools', {
+    method: 'GET',
+    headers: {
+        'X-API-Key': 'ak_your_api_key_here',
+        'Content-Type': 'application/json'
+    },
+    mode: 'cors'  // 明确启用CORS
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+```javascript
+// jQuery AJAX请求
+$.ajax({
+    url: 'https://vertu.com/wp-json/ai-tools/v1/tools',
+    method: 'GET',
+    headers: {
+        'X-API-Key': 'ak_your_api_key_here'
+    },
+    crossDomain: true,  // 启用跨域
+    success: function(data) {
+        console.log(data);
+    },
+    error: function(xhr, status, error) {
+        console.error('API请求失败:', error);
+    }
+});
+```
+
+### **CORS测试工具**
+
+我们提供了专门的CORS测试工具：
+
+```bash
+# 运行Python测试脚本
+python test_cors_headers.py
+
+# 生成浏览器测试页面
+# 会创建 cors_test.html 文件，在浏览器中打开测试
+```
+
+---
+
 ## 📋 **API端点**
 
 ### **1. 获取AI工具列表**
@@ -362,33 +423,6 @@ curl -H "X-API-Key: ak_your_api_key_here" \
 curl -H "X-API-Key: ak_your_api_key_here" \
      "https://vertu.com/wp-json/ai-tools/v1/tools?pricing=Free"
 ```
-
----
-
-## �� **最佳实践**
-
-### **1. 速率限制**
-- 默认每小时1000次请求
-- 超过限制将返回429错误
-- 建议添加重试机制和指数退避
-
-### **2. 错误处理**
-- 始终检查`success`字段
-- 实现适当的错误处理和用户反馈
-- 记录API调用日志便于调试
-
-### **3. 数据缓存**
-- 对不经常变化的数据（如分类列表）进行缓存
-- 设置合理的缓存过期时间
-
-### **4. 安全性**
-- 不要在前端代码中暴露API Key
-- 使用环境变量存储API Key
-- 定期轮换API Key
-
-### **5. 分页处理**
-- 使用分页避免一次获取过多数据
-- 实现分页导航和加载更多功能
 
 ---
 

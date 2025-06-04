@@ -16,6 +16,9 @@ class AIToolImportAPI {
     public function __construct() {
         add_action('rest_api_init', array($this, 'register_routes'));
         
+        // 添加CORS支持
+        add_action('rest_api_init', array($this, 'add_cors_support'));
+        
         // 添加管理界面
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
@@ -25,6 +28,35 @@ class AIToolImportAPI {
         
         // 注册激活钩子
         register_activation_hook(__FILE__, array($this, 'on_activation'));
+    }
+    
+    /**
+     * 添加CORS支持
+     */
+    public function add_cors_support() {
+        // 处理预检请求
+        add_action('wp_loaded', function() {
+            if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+                if (strpos($_SERVER['REQUEST_URI'], '/wp-json/ai-tools/') !== false) {
+                    header('Access-Control-Allow-Origin: *');
+                    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+                    header('Access-Control-Allow-Headers: X-API-Key, Authorization, Content-Type, Accept');
+                    header('Access-Control-Max-Age: 86400');
+                    exit;
+                }
+            }
+        });
+    }
+    
+    /**
+     * 设置CORS头部 - 通用方法
+     */
+    private function set_cors_headers($response) {
+        $response->header('Access-Control-Allow-Origin', '*');
+        $response->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        $response->header('Access-Control-Allow-Headers', 'X-API-Key, Authorization, Content-Type, Accept');
+        $response->header('Access-Control-Expose-Headers', 'X-Total-Count, X-Total-Pages');
+        return $response;
     }
     
     /**
@@ -235,10 +267,11 @@ class AIToolImportAPI {
         $rate_limit = intval($request->get_param('rate_limit')) ?: 1000;
         
         if (empty($name)) {
-            return new WP_REST_Response(array(
+            $response = new WP_REST_Response(array(
                 'success' => false,
                 'message' => '名称不能为空'
             ), 400);
+            return $this->set_cors_headers($response);
         }
         
         // 生成API Key
@@ -266,13 +299,14 @@ class AIToolImportAPI {
         
         if ($result === false) {
             error_log("AI Tools API: Insert failed: " . $wpdb->last_error);
-            return new WP_REST_Response(array(
+            $response = new WP_REST_Response(array(
                 'success' => false,
                 'message' => '创建API Key失败: ' . $wpdb->last_error
             ), 500);
+            return $this->set_cors_headers($response);
         }
         
-        return new WP_REST_Response(array(
+        $response = new WP_REST_Response(array(
             'success' => true,
             'message' => 'API Key创建成功',
             'data' => array(
@@ -283,6 +317,8 @@ class AIToolImportAPI {
                 'created_at' => current_time('mysql')
             )
         ), 201);
+        
+        return $this->set_cors_headers($response);
     }
     
     /**
@@ -300,10 +336,12 @@ class AIToolImportAPI {
             ORDER BY created_at DESC
         ");
         
-        return new WP_REST_Response(array(
+        $response = new WP_REST_Response(array(
             'success' => true,
             'data' => $keys
         ), 200);
+        
+        return $this->set_cors_headers($response);
     }
     
     /**
@@ -318,16 +356,19 @@ class AIToolImportAPI {
         $result = $wpdb->delete($table_name, array('id' => $key_id), array('%d'));
         
         if ($result === false) {
-            return new WP_REST_Response(array(
+            $response = new WP_REST_Response(array(
                 'success' => false,
                 'message' => '删除失败'
             ), 500);
+            return $this->set_cors_headers($response);
         }
         
-        return new WP_REST_Response(array(
+        $response = new WP_REST_Response(array(
             'success' => true,
             'message' => 'API Key已删除'
         ), 200);
+        
+        return $this->set_cors_headers($response);
     }
     
     /**
@@ -532,7 +573,7 @@ class AIToolImportAPI {
             'timestamp' => current_time('c')
         ), 200);
         
-        $response->header('Access-Control-Allow-Origin', '*');
+        $response = $this->set_cors_headers($response);
         return $response;
     }
     
@@ -540,11 +581,13 @@ class AIToolImportAPI {
      * 测试连接
      */
     public function test_connection($request) {
-        return new WP_REST_Response(array(
+        $response = new WP_REST_Response(array(
             'success' => true,
             'message' => 'API连接成功',
             'timestamp' => current_time('c')
         ), 200);
+        
+        return $this->set_cors_headers($response);
     }
     
     /**
@@ -867,8 +910,11 @@ class AIToolImportAPI {
         $rate_limit = intval($_POST['rate_limit'] ?? 1000);
         
         if (empty($name)) {
-            wp_send_json_error('名称不能为空');
-            return;
+            $response = new WP_REST_Response(array(
+                'success' => false,
+                'message' => '名称不能为空'
+            ), 400);
+            return $this->set_cors_headers($response);
         }
         
         // 生成API Key
@@ -882,26 +928,40 @@ class AIToolImportAPI {
             $this->create_api_tables();
         }
         
+        $current_user_id = get_current_user_id() ?: 1;
+        
         $result = $wpdb->insert($table_name, array(
             'api_key' => $api_key,
             'name' => $name,
             'description' => $description,
             'rate_limit' => $rate_limit,
             'status' => 'active',
-            'created_by' => get_current_user_id() ?: 1,
+            'created_by' => $current_user_id,
             'created_at' => current_time('mysql')
         ), array('%s', '%s', '%s', '%d', '%s', '%d', '%s'));
         
         if ($result === false) {
-            wp_send_json_error('创建失败: ' . $wpdb->last_error);
-            return;
+            error_log("AI Tools API: Insert failed: " . $wpdb->last_error);
+            $response = new WP_REST_Response(array(
+                'success' => false,
+                'message' => '创建API Key失败: ' . $wpdb->last_error
+            ), 500);
+            return $this->set_cors_headers($response);
         }
         
-        wp_send_json_success(array(
-            'api_key' => $api_key,
-            'name' => $name,
-            'message' => 'API Key创建成功'
-        ));
+        $response = new WP_REST_Response(array(
+            'success' => true,
+            'message' => 'API Key创建成功',
+            'data' => array(
+                'id' => $wpdb->insert_id,
+                'api_key' => $api_key,
+                'name' => $name,
+                'rate_limit' => $rate_limit,
+                'created_at' => current_time('mysql')
+            )
+        ), 201);
+        
+        return $this->set_cors_headers($response);
     }
     
     /**
@@ -941,11 +1001,12 @@ class AIToolImportAPI {
         
         $post = get_post($tool_id);
         if (!$post || $post->post_type !== 'aihub' || $post->post_status !== 'publish') {
-            return new WP_REST_Response(array(
+            $response = new WP_REST_Response(array(
                 'success' => false,
                 'message' => '工具不存在',
                 'code' => 'not_found'
             ), 404);
+            return $this->set_cors_headers($response);
         }
         
         $fields = get_fields($tool_id);
@@ -1024,11 +1085,14 @@ class AIToolImportAPI {
             'releases' => $releases
         );
         
-        return new WP_REST_Response(array(
+        $response = new WP_REST_Response(array(
             'success' => true,
             'data' => $tool_data,
             'timestamp' => current_time('c')
         ), 200);
+        
+        $response = $this->set_cors_headers($response);
+        return $response;
     }
 
     /**
@@ -1053,11 +1117,12 @@ class AIToolImportAPI {
         $query = new WP_Query($args);
         
         if (!$query->have_posts()) {
-            return new WP_REST_Response(array(
+            $response = new WP_REST_Response(array(
                 'success' => false,
                 'message' => '未找到对应的工具',
                 'code' => 'not_found'
             ), 404);
+            return $this->set_cors_headers($response);
         }
         
         $post = $query->posts[0];
@@ -1112,12 +1177,15 @@ class AIToolImportAPI {
         }
         wp_reset_postdata();
         
-        return new WP_REST_Response(array(
+        $response = new WP_REST_Response(array(
             'success' => true,
             'data' => $tools,
             'count' => count($tools),
             'timestamp' => current_time('c')
         ), 200);
+        
+        $response = $this->set_cors_headers($response);
+        return $response;
     }
 
     /**
@@ -1159,12 +1227,15 @@ class AIToolImportAPI {
         }
         wp_reset_postdata();
         
-        return new WP_REST_Response(array(
+        $response = new WP_REST_Response(array(
             'success' => true,
             'data' => $tools,
             'count' => count($tools),
             'timestamp' => current_time('c')
         ), 200);
+        
+        $response = $this->set_cors_headers($response);
+        return $response;
     }
 
     /**
@@ -1187,12 +1258,15 @@ class AIToolImportAPI {
             );
         }
         
-        return new WP_REST_Response(array(
+        $response = new WP_REST_Response(array(
             'success' => true,
             'data' => $formatted_categories,
             'count' => count($formatted_categories),
             'timestamp' => current_time('c')
         ), 200);
+        
+        $response = $this->set_cors_headers($response);
+        return $response;
     }
 
     /**
@@ -1215,12 +1289,15 @@ class AIToolImportAPI {
             );
         }
         
-        return new WP_REST_Response(array(
+        $response = new WP_REST_Response(array(
             'success' => true,
             'data' => $formatted_tags,
             'count' => count($formatted_tags),
             'timestamp' => current_time('c')
         ), 200);
+        
+        $response = $this->set_cors_headers($response);
+        return $response;
     }
 
     /**
@@ -1278,7 +1355,7 @@ class AIToolImportAPI {
             LIMIT 1
         ");
         
-        return new WP_REST_Response(array(
+        $response = new WP_REST_Response(array(
             'success' => true,
             'data' => array(
                 'total_tools' => (int)$total_tools,
@@ -1287,6 +1364,9 @@ class AIToolImportAPI {
                 'last_updated' => $last_updated
             )
         ), 200);
+        
+        $response = $this->set_cors_headers($response);
+        return $response;
     }
 }
 
