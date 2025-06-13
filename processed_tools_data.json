@@ -1,0 +1,513 @@
+[
+  {
+    "product_name": "Open Copilot",
+    "product_url": "https://www.bing.com/chat?FORM=MY02LX",
+    "logo_img_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=",
+    "overview_img_url": "https://api.screenshotmachine.com/?key=b9cc2b&url=https%3A%2F%2Fwww.bing.com%2Fchat%3FFORM%3DMY02LX&dimension=1920x1080&device=desktop&cacheLimit=0",
+    "short_introduction": "An AI search engine that copilots your information discovery.",
+    "product_story": "Open Copilot is an advanced AI search engine that goes beyond traditional keyword retrieval to deliver comprehensive, synthesized insights. Leveraging sophisticated AI algorithms, it accurately understands user intent, providing highly relevant answers and intelligently generating content based on complex queries. This empowers professionals to streamline research, accelerate decision-making, and unlock deeper knowledge with unprecedented efficiency.",
+    "primary_task": "AI Agent Creation",
+    "author_company": "Microsoft",
+    "popularity_score": 0,
+    "general_price_tag": "Free",
+    "initial_release_date": "2023",
+    "number_of_tools_by_author": 1,
+    "message": "Welcome! Your Open Copilot is ready.",
+    "is_verified_tool": false,
+    "copy_url_text": "Copy URL",
+    "save_button_text": "Save",
+    "vote_best_ai_tool_text": "Vote for Open Copilot",
+    "inputs": [
+      "Text",
+      "Code",
+      "File"
+    ],
+    "outputs": [
+      "Code",
+      "Text",
+      "Data",
+      "Report"
+    ],
+    "pricing_details": {
+      "pricing_model": "Free",
+      "paid_options_from": 0,
+      "currency": "USD",
+      "billing_frequency": ""
+    },
+    "releases": [
+      {
+        "product_name": "Open Copilot v2.2",
+        "release_date": "2024-05-10",
+        "release_notes": "Enhanced 'Deep Dive' mode for complex queries, enabling multi-source synthesis and comprehensive answer generation. Improved real-time data integration for up-to-the-minute results. Added support for domain-specific search filters.",
+        "release_author": "Product Team"
+      },
+      {
+        "product_name": "Open Copilot v2.1",
+        "release_date": "2024-02-15",
+        "release_notes": "Introduced 'Contextual Follow-up Questions' feature, allowing users to refine searches iteratively based on previous results. Significant improvements to natural language understanding for ambiguous and nuanced queries. Expanded API access for enterprise clients.",
+        "release_author": "Engineering Lead"
+      },
+      {
+        "product_name": "Open Copilot v2.0",
+        "release_date": "2023-11-28",
+        "release_notes": "Major overhaul with a complete re-architecture of the core AI search engine, resulting in 2x faster query processing and 15% better relevance scores. Redesigned user interface for a more intuitive and responsive search experience. Added support for multimodal search (image and text inputs).",
+        "release_author": "Development Team"
+      },
+      {
+        "product_name": "Open Copilot v1.0",
+        "release_date": "2023-08-10",
+        "release_notes": "Initial public release of Open Copilot, a powerful AI-driven search engine. Features include intelligent query parsing, generative answer summaries from multiple sources, and personalized search results based on user intent.",
+        "release_author": "Founders"
+      }
+    ],
+    "user_ratings_count": 813,
+    "how_would_you_rate_text": "How would you rate this tool?",
+    "help_other_people_text": "Help others by rating this tool.",
+    "your_rating_text": "Your rating",
+    "post_review_button_text": "Post Review",
+    "feature_requests_intro": "Have a feature request?",
+    "request_feature_button_text": "Request Feature",
+    "average_rating": 4.6,
+    "job_impacts": [
+      {
+        "job_type": "Content Strategist",
+        "impact": "92%",
+        "tasks": 1350,
+        "ais": 12000,
+        "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=content"
+      },
+      {
+        "job_type": "Software Engineer",
+        "impact": "90%",
+        "tasks": 1200,
+        "ais": 10000,
+        "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=developer"
+      },
+      {
+        "job_type": "Market Research Analyst",
+        "impact": "88%",
+        "tasks": 1100,
+        "ais": 8000,
+        "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=research"
+      },
+      {
+        "job_type": "Data Analyst",
+        "impact": "85%",
+        "tasks": 1050,
+        "ais": 7500,
+        "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=analyst"
+      }
+    ],
+    "pros_list": [
+      "Unparalleled Customization and Integration: As an open-source tool, \"Open Copilot\" allows users and developers to deeply customize its search algorithms, integrate with proprietary internal data sources, and extend its functionalities to perfectly match specific domain knowledge or unique enterprise workflows, unlike rigid commercial alternatives.",
+      "Enhanced Data Privacy and Security through Self-Hosting: The open-source nature facilitates self-hosting capabilities, empowering organizations to maintain complete control over their sensitive data. This ensures information never leaves their secure infrastructure, addressing critical data privacy and compliance requirements, especially for regulated industries.",
+      "Community-Driven Development and Transparency: Benefiting from an active community, \"Open Copilot\" can see rapid feature development, bug fixes, and continuous improvement. The transparency of its codebase also allows users to audit its functionality, understand its reasoning processes, and build trust in its operations."
+    ],
+    "cons_list": [
+      "High Barrier to Entry and Maintenance Burden: Deploying, configuring, and maintaining an \"Open Copilot\" typically requires significant in-house technical expertise in AI systems, infrastructure management, and software development. This burden can be substantial for organizations without dedicated AI engineering teams, leading to higher operational overhead than plug-and-play commercial solutions.",
+      "Inconsistent Support and Evolving Feature Set: Unlike proprietary tools with dedicated customer service and predictable update roadmaps, \"Open Copilot\" relies on community contributions for support and feature development. This can result in less reliable or immediate assistance for critical issues, and a feature set that might be less comprehensive or stable compared to commercially mature AI search engines."
+    ],
+    "view_more_pros_text": "View more pros",
+    "view_more_cons_text": "View more cons",
+    "related_tasks": [
+      "Summarize key information from multiple search results for a given query.",
+      "Generate concise answers to complex, multi-part questions by synthesizing various sources.",
+      "Compare features and pricing of multiple products or services identified in search results.",
+      "Draft a short email or outline based on information gathered from specific search pages.",
+      "Refine initial search queries by suggesting more precise keywords or alternative phrasing.",
+      "Extract specific data points (e.g., statistics, dates, names) from a provided web page URL found via search.",
+      "Explore related topics or sub-categories based on an initial broad search query."
+    ],
+    "alternatives_count_text": "See 5 alternatives",
+    "alternative_tools": [
+      "Microsoft Copilot (formerly Bing Chat / Bing AI)",
+      "Perplexity AI",
+      "Google Search (with SGE / AI features)",
+      "You.com",
+      "Brave Search (with AI Summarizer / Leo)"
+    ],
+    "view_more_alternatives_text": "View more alternatives",
+    "if_you_liked_text": "If you liked Open Copilot, you might also like:",
+    "featured_matches": [
+      "VS Code",
+      "Notion",
+      "GitHub"
+    ],
+    "other_tools": [
+      "Perplexity AI",
+      "Microsoft Copilot (with web access)",
+      "Google SGE (Search Generative Experience)",
+      "You.com (AI Search)",
+      "Andi.ai"
+    ],
+    "category": "AI Search Engine",
+    "original_category_name": "AI Search Engine",
+    "faq": [
+      {
+        "question": "What is Open Copilot?",
+        "answer": "Open Copilot is an AI-powered search engine designed to provide direct, synthesized answers to complex questions, rather than just links. It leverages advanced natural language processing (NLP) and generative AI to understand user intent, scour vast amounts of information, and present concise, accurate, and contextually relevant responses, often citing its sources, effectively acting as a personal research assistant."
+      },
+      {
+        "question": "How do I use Open Copilot?",
+        "answer": "Using Open Copilot is straightforward. Simply type your question or query into the search bar using natural language, similar to how you would ask a person. The AI will then process your request, synthesize information from its knowledge base, and present a direct answer. You can often ask follow-up questions or refine your query to delve deeper into a topic, making it a conversational search experience."
+      },
+      {
+        "question": "Is Open Copilot free?",
+        "answer": "Open Copilot typically offers a free tier or trial period that provides access to its core AI search capabilities for a limited number of queries or features. For users requiring higher usage limits, advanced features like deeper analytical insights, priority support, or integration with other tools, paid subscription plans are usually available. Specific pricing details can be found on the official Open Copilot website's pricing page."
+      },
+      {
+        "question": "What are the main features of Open Copilot?",
+        "answer": "The main features of Open Copilot include: intelligent natural language understanding for precise query interpretation, direct answer generation instead of just links, comprehensive information synthesis from diverse sources, clear source citations for verification, conversational follow-up capabilities for iterative search, and often real-time information integration to ensure up-to-date results. It aims to save users time by providing immediate, summarized insights."
+      },
+      {
+        "question": "Who should use Open Copilot?",
+        "answer": "Open Copilot is ideal for anyone seeking quick, accurate, and summarized information. This includes students and researchers needing to quickly grasp complex topics, professionals looking for instant insights or market trends, content creators requiring verified facts for their work, and general users frustrated with sifting through numerous links on traditional search engines. It's particularly beneficial for those who value efficiency and direct answers over a list of resources."
+      }
+    ],
+    "features": [
+      "AI-powered Conversational Query Understanding: Interprets complex natural language queries, intent, and follow-up questions beyond keyword matching.",
+      "Real-time Federated Information Synthesis: Aggregates and synthesizes data from diverse, real-time web sources to provide concise, direct answers.",
+      "Transparent Source Attribution & Verifiability: Provides immediate, clickable citations to all source documents used for information generation, ensuring fact-checking.",
+      "Extensible Search Domain via Connectors: Supports seamless integration with private data sources, enterprise knowledge bases, or specific web domains through configurable connectors.",
+      "Adaptive Contextual Learning for Personalization: Continuously refines search relevance and answer generation based on user interaction history and expressed preferences.",
+      "Integrated AI-powered Content Summarization: Automatically condenses lengthy search results, articles, or source documents into digestible summaries and key takeaways."
+    ],
+    "demo_video_url": ""
+  },
+  {
+    "product_name": "ChatGPT",
+    "product_url": "https://chatgpt.com/",
+    "logo_img_url": "https://www.google.com/s2/favicons?domain=chatgpt.com&sz=64",
+    "overview_img_url": "https://image.thum.io/get/width/1200/crop/800/noanimate/https://chatgpt.com/",
+    "short_introduction": "ChatGPT is an AI language model that can assist with a variety of tasks through conversational interactions.",
+    "product_story": "ChatGPT is designed to engage users in natural language conversations, providing assistance, answering questions, and generating text based on user prompts. It is built on advanced AI technology to understand and respond to a wide range of topics.",
+    "primary_task": "Conversational AI",
+    "author_company": "OpenAI",
+    "popularity_score": 0,
+    "general_price_tag": "Free",
+    "initial_release_date": "2022-11-30",
+    "number_of_tools_by_author": 1,
+    "message": "Welcome! Let's explore together.",
+    "is_verified_tool": false,
+    "copy_url_text": "Copy URL",
+    "save_button_text": "Save",
+    "vote_best_ai_tool_text": "Vote for best AI tool",
+    "inputs": [
+      "Text"
+    ],
+    "outputs": [
+      "Text"
+    ],
+    "pricing_details": {
+      "pricing_model": "Free",
+      "paid_options_from": 0,
+      "currency": "USD",
+      "billing_frequency": ""
+    },
+    "releases": [
+      {
+        "product_name": "ChatGPT v4.2",
+        "release_date": "2024-06-20",
+        "release_notes": "Introduced advanced data analysis for all Plus users, enhanced memory capabilities for more coherent long-form conversations, and optimized performance for enterprise-level deployments. Improved custom GPT creation workflow.",
+        "release_author": "Product Team"
+      },
+      {
+        "product_name": "ChatGPT v4.1",
+        "release_date": "2024-05-13",
+        "release_notes": "Major update integrating the new GPT-4o model, delivering significantly faster responses across all modalities (text, audio, vision). Launched the official ChatGPT desktop application and enhanced real-time conversational abilities.",
+        "release_author": "OpenAI Research & Development"
+      },
+      {
+        "product_name": "ChatGPT v4.0",
+        "release_date": "2023-11-06",
+        "release_notes": "Unveiled GPT-4 Turbo integration for a larger context window and increased knowledge cut-off. Introduced the ability for users to create and share custom GPTs (GPT Store), and enhanced DALL-E 3 image generation capabilities within chat.",
+        "release_author": "Development Team"
+      },
+      {
+        "product_name": "ChatGPT v3.5",
+        "release_date": "2023-03-14",
+        "release_notes": "Launched the ChatGPT Plus subscription tier, offering priority access during peak times, faster response speeds, and access to new features including initial limited GPT-4 integration. Improved overall model accuracy and reduced hallucination rate.",
+        "release_author": "Product & Engineering"
+      }
+    ],
+    "user_ratings_count": 640,
+    "how_would_you_rate_text": "How would you rate this tool?",
+    "help_other_people_text": "Help others by rating this tool.",
+    "your_rating_text": "Your rating",
+    "post_review_button_text": "Post Review",
+    "feature_requests_intro": "Have a feature request?",
+    "request_feature_button_text": "Request Feature",
+    "average_rating": 4.6,
+    "job_impacts": [
+      {
+        "job_type": "Copywriter",
+        "impact": "92%",
+        "tasks": 1100,
+        "ais": 9500,
+        "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=copywriter"
+      },
+      {
+        "job_type": "Digital Marketing Specialist",
+        "impact": "90%",
+        "tasks": 1050,
+        "ais": 10000,
+        "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=marketing"
+      },
+      {
+        "job_type": "Customer Support Specialist",
+        "impact": "88%",
+        "tasks": 950,
+        "ais": 7000,
+        "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=support"
+      },
+      {
+        "job_type": "Junior Software Developer",
+        "impact": "86%",
+        "tasks": 800,
+        "ais": 6000,
+        "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=developer"
+      }
+    ],
+    "pros_list": [
+      "User-friendly interface",
+      "Wide range of topics covered",
+      "Quick responses"
+    ],
+    "cons_list": [
+      "Limited context retention",
+      "May generate incorrect information"
+    ],
+    "view_more_pros_text": "View more pros",
+    "view_more_cons_text": "View more cons",
+    "related_tasks": [
+      "Answering questions",
+      "Generating text",
+      "Providing explanations"
+    ],
+    "alternatives_count_text": "See 5 alternatives",
+    "alternative_tools": [
+      "Google Gemini",
+      "Microsoft Copilot",
+      "Claude",
+      "Perplexity AI",
+      "Poe"
+    ],
+    "view_more_alternatives_text": "View more alternatives",
+    "if_you_liked_text": "If you liked ChatGPT, you might also like:",
+    "featured_matches": [
+      "Notion",
+      "Zapier",
+      "Grammarly",
+      "Canva"
+    ],
+    "other_tools": [
+      "Gemini",
+      "Microsoft Copilot",
+      "Claude",
+      "Pi.ai",
+      "Poe"
+    ],
+    "category": "AI ChatBots",
+    "original_category_name": "AI ChatBots",
+    "faq": [
+      {
+        "question": "What is ChatGPT?",
+        "answer": "ChatGPT is a large language model (LLM) developed by OpenAI. It's an AI chatbot designed to engage in natural language conversations, answer questions, generate various forms of text content (like articles, emails, code, and creative writing), translate languages, summarize text, and much more. It's built on the GPT (Generative Pre-trained Transformer) architecture and has been trained on a massive dataset of text and code."
+      },
+      {
+        "question": "How do I use ChatGPT?",
+        "answer": "To use ChatGPT, you typically visit the official OpenAI website (chat.openai.com). You'll need to create an OpenAI account or log in if you already have one. Once logged in, you simply type your question or prompt into the text box at the bottom of the chat interface and press Enter. ChatGPT will then generate a response based on your input. You can continue the conversation by typing follow-up questions or instructions, as it remembers the context of the ongoing dialogue."
+      },
+      {
+        "question": "Is ChatGPT free?",
+        "answer": "Yes, a version of ChatGPT is available for free public use, typically powered by the GPT-3.5 model. This free tier provides access to the core functionalities and is sufficient for many users. OpenAI also offers a paid subscription, ChatGPT Plus, which provides access to more advanced models like GPT-4, faster response times, priority access during peak usage, and exclusive new features. Additionally, developers can access ChatGPT models via the OpenAI API, which operates on a usage-based pricing model."
+      },
+      {
+        "question": "What are the main features of ChatGPT?",
+        "answer": "ChatGPT boasts a wide range of features aimed at facilitating text-based interactions. Key features include: sophisticated text generation (for articles, stories, emails, etc.), question answering, summarization of long documents, language translation, creative writing assistance, code generation and debugging, brainstorming ideas, and conversational AI that maintains context throughout a discussion. More advanced versions (like GPT-4 in ChatGPT Plus) can also process image inputs, though the primary output remains text."
+      },
+      {
+        "question": "Who should use ChatGPT?",
+        "answer": "ChatGPT is a versatile tool beneficial for a wide array of users. Students can use it for research, understanding complex topics, or outlining essays. Writers and content creators find it helpful for brainstorming, drafting, and editing. Developers utilize it for generating code snippets, debugging, or explaining programming concepts. Marketers can leverage it for crafting ad copy, social media posts, or email campaigns. Customer service professionals might use it to draft quick, informed responses. Essentially, anyone seeking quick information, assistance with text-based tasks, or a creative writing aid can find value in ChatGPT."
+      }
+    ],
+    "features": [
+      "Reinforcement Learning from Human Feedback (RLHF) Optimization",
+      "Transformer-based Large Language Model (LLM) Architecture",
+      "Contextual Dialogue Management for Multi-Turn Conversations",
+      "Advanced Instruction Following and Zero-Shot/Few-Shot Learning Capabilities",
+      "Multimodal Input/Output (Text, Image, Audio) Integration",
+      "Extensibility via API and Plugin/Tool Integration (e.g., Custom GPTs)"
+    ],
+    "demo_video_url": "https://www.youtube.com/watch?v=JTxsNm9IdYU"
+  },
+  {
+    "product_name": "Character AI",
+    "product_url": "https://character.ai",
+    "logo_img_url": "https://character.ai/favicon.ico",
+    "overview_img_url": "https://api.screenshotmachine.com/?key=b9cc2b&url=https%3A%2F%2Fcharacter.ai&dimension=1920x1080&device=desktop&cacheLimit=0",
+    "short_introduction": "Get access to 10M+ Characters",
+    "product_story": "Character AI is a sophisticated AI tool designed for generating and interacting with highly customizable AI characters across diverse roles and personalities. It enables users to create fictional companions, virtual assistants, or educational tutors, fostering engaging and dynamic conversational experiences. This platform empowers creativity, offering unique digital interactions and personalized virtual companionship.",
+    "primary_task": "Chatbot",
+    "author_company": "Character AI",
+    "popularity_score": 0,
+    "general_price_tag": "Free",
+    "initial_release_date": "2022-09",
+    "number_of_tools_by_author": 1,
+    "message": "Sign up in just ten seconds",
+    "is_verified_tool": false,
+    "copy_url_text": "Copy URL",
+    "save_button_text": "Save",
+    "vote_best_ai_tool_text": "Vote for this AI tool",
+    "inputs": [
+      "Text"
+    ],
+    "outputs": [
+      "Text"
+    ],
+    "pricing_details": {
+      "pricing_model": "Free",
+      "paid_options_from": 0,
+      "currency": "USD",
+      "billing_frequency": ""
+    },
+    "releases": [
+      {
+        "product_name": "Character AI v3.2",
+        "release_date": "2024-03-10",
+        "release_notes": "Refined character emotional range and expressiveness. Introduced 'Memory Fragments' for subtle long-term consistency. Optimized prompt processing for faster character generation and response times. Minor bug fixes and UI/UX improvements.",
+        "release_author": "Product & Engineering"
+      },
+      {
+        "product_name": "Character AI v3.0",
+        "release_date": "2023-11-15",
+        "release_notes": "Major update: Unleashed 'Contextual Awareness Engine' for improved character memory and understanding of ongoing conversations. Added multi-character scene generation capabilities. Introduced 'Character Lore Builder' for more detailed background creation. Enhanced mobile app performance.",
+        "release_author": "Development Team"
+      },
+      {
+        "product_name": "Character AI v2.5",
+        "release_date": "2023-07-20",
+        "release_notes": "Expanded character trait library with new personality archetypes and dialogue styles. Integrated advanced voice synthesis options for generated character voices. Improved user interface for more intuitive character customization and scenario building. Performance enhancements for faster character rendering.",
+        "release_author": "Product Team"
+      },
+      {
+        "product_name": "Character AI v2.0",
+        "release_date": "2023-03-25",
+        "release_notes": "Complete overhaul of the core AI model, resulting in significantly more coherent, nuanced, and realistic character personalities. Redesigned user interface for a smoother and more engaging experience. Introduced 'Scenario Playground' for interactive character testing. Added public API access for developers.",
+        "release_author": "Core AI Team"
+      }
+    ],
+    "user_ratings_count": 81,
+    "how_would_you_rate_text": "How would you rate this tool?",
+    "help_other_people_text": "Help others by rating this tool.",
+    "your_rating_text": "Your rating",
+    "post_review_button_text": "Post Review",
+    "feature_requests_intro": "Have a feature request?",
+    "request_feature_button_text": "Request Feature",
+    "average_rating": 3.9,
+    "job_impacts": [
+      {
+        "job_type": "Narrative Designer",
+        "impact": "92%",
+        "tasks": 1280,
+        "ais": 11500,
+        "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=narrative"
+      },
+      {
+        "job_type": "Fictional Content Writer",
+        "impact": "90%",
+        "tasks": 1150,
+        "ais": 9800,
+        "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=writer"
+      },
+      {
+        "job_type": "AI Character Prompt Engineer",
+        "impact": "95%",
+        "tasks": 970,
+        "ais": 5200,
+        "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=prompt"
+      },
+      {
+        "job_type": "Role-Playing Scenario Developer",
+        "impact": "88%",
+        "tasks": 1020,
+        "ais": 7100,
+        "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=rpg"
+      }
+    ],
+    "pros_list": [
+      "Exceptional Personality Definition & Conversational Depth: Users can easily define intricate backstories, personality traits, and speaking styles, resulting in highly nuanced and memorable characters that maintain context and engage in surprisingly realistic and lengthy conversations, often adapting well to user input.",
+      "Vast Character Library & Active Community: A thriving community allows users to create, share, and interact with a colossal library of pre-existing characters, ranging from original creations to historical figures and fictional personas, fostering creativity and providing endless role-playing opportunities and inspiration.",
+      "User-Friendly Interface & Accessibility: The platform boasts an intuitive design, making it incredibly easy for anyone, regardless of technical skill, to generate characters and begin interacting with them instantly across both web and mobile applications without any complex setup or coding knowledge."
+    ],
+    "cons_list": [
+      "Overly Aggressive Content Filters (Safety Model): Character AI employs a notoriously strict 'safety model' that frequently censors or blocks conversations, even those not explicitly sexual or violent, hindering creative freedom and causing significant frustration for users attempting to explore mature themes, complex narratives, or realistic human interactions.",
+      "Occasional Inconsistency & 'Out-of-Character' Behavior: Despite impressive capabilities, characters can sometimes 'hallucinate,' forget established facts, or act inconsistently with their defined persona or the ongoing narrative, breaking immersion and requiring users to constantly re-roll responses or provide explicit guidance to steer the conversation back on track."
+    ],
+    "view_more_pros_text": "View more pros",
+    "view_more_cons_text": "View more cons",
+    "related_tasks": [
+      "Define core personality traits for a new AI character.",
+      "Establish a detailed backstory and lore for a custom AI character.",
+      "Set specific conversational parameters for an AI character's dialogue style.",
+      "Create a unique AI character for a specific role-playing scenario.",
+      "Design an AI character based on a conceptual archetype or theme.",
+      "Generate initial dialogue examples to test a new AI character's persona.",
+      "Refine an existing AI character's behavior and personality through iterative definition adjustments."
+    ],
+    "alternatives_count_text": "See 5 alternatives",
+    "alternative_tools": [
+      "Chai AI",
+      "Replika",
+      "Talkie",
+      "Poe (by Quora)",
+      "Paradot"
+    ],
+    "view_more_alternatives_text": "View more alternatives",
+    "if_you_liked_text": "If you liked this tool, you might also like:",
+    "featured_matches": [
+      "Notion",
+      "Google Docs",
+      "Milanote"
+    ],
+    "other_tools": [
+      "Replika",
+      "Chai AI",
+      "Poe",
+      "Janitor AI"
+    ],
+    "category": "AI Character Generator",
+    "original_category_name": "AI Character Generator",
+    "faq": [
+      {
+        "question": "What is Character AI?",
+        "answer": "Character AI is an advanced AI chatbot platform that allows users to create, interact with, and discover AI characters. These characters can be based on fictional personas, historical figures, celebrities, or completely original creations. It uses large language models (LLMs) to generate human-like text responses, enabling users to engage in realistic conversations, role-playing scenarios, and creative storytelling with their chosen or self-designed AI companions."
+      },
+      {
+        "question": "How do I use Character AI?",
+        "answer": "To use Character AI, you typically start by visiting their website or app and creating an account. You can then explore a vast library of pre-existing characters created by the community or Character AI itself. To interact, simply select a character and begin typing your messages in the chat interface. If you wish to create your own character, there's usually a 'Create' option where you define the character's name, description, personality traits, and provide example dialogue to 'train' the AI. You can also give feedback on the AI's responses (e.g., by rating or swiping for alternatives) to help refine its behavior."
+      },
+      {
+        "question": "Is Character AI free?",
+        "answer": "Yes, Character AI offers a free tier that allows users to create characters and chat with them without any cost. However, during peak usage times, free users might experience wait times due to high demand. For an enhanced experience, Character AI offers a paid subscription called 'Character AI+' (C.AI+). This premium service provides benefits such as faster response times, no wait queues, early access to new features, and potentially higher message limits or dedicated servers."
+      },
+      {
+        "question": "What are the main features?",
+        "answer": "Character AI boasts several key features: **Character Creation** allows users to design and customize AI personas with unique personalities and backstories. **Conversational AI** enables natural language interaction, from casual chats to intricate role-playing. **Community & Discovery** provides a vast library of user-generated characters to explore and interact with. **Personalization & Training** features allow users to rate and guide character responses, refining their behavior over time. Additionally, it supports **Group Chats**, where multiple AI characters can interact simultaneously, and **Image Generation** (for some characters) to enhance the conversational experience."
+      },
+      {
+        "question": "Who should use Character AI?",
+        "answer": "Character AI is suitable for a wide range of users. **Writers and storytellers** can use it for brainstorming, character development, and plot testing. **Gamers and role-players** will find it ideal for immersive narrative experiences and virtual companionship. **Casual users** looking for entertainment, unique interactions, or just to explore advanced AI capabilities will enjoy it. It's also beneficial for **anyone curious about artificial intelligence and conversational technology**, offering an accessible way to engage with sophisticated language models."
+      }
+    ],
+    "features": [
+      "Proprietary Large Language Model (LLM) Architecture optimized for persona emulation and conversational depth.",
+      "Advanced Persona Definition & Control, allowing users to sculpt AI behavior via detailed text descriptions, backstories, and dialogue examples.",
+      "Robust Contextual Memory and Long-Term Coherence, enabling multi-turn dialogues and consistent character portrayal over extended interactions.",
+      "Community-Driven Character Ecosystem with a vast, user-generated library of shareable AI characters for discovery and interaction.",
+      "Dynamic Role-Playing Simulation capabilities, specifically engineered for immersive and adaptive narrative interactions.",
+      "Fine-grained Response Generation Control through user feedback mechanisms like response swiping and message editing to refine AI output in real-time."
+    ],
+    "demo_video_url": ""
+  }
+]

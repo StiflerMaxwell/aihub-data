@@ -29,6 +29,7 @@ class Config:
         self.WP_USERNAME = os.getenv('WP_USERNAME', '')
         self.WP_APP_PASSWORD = os.getenv('WP_APP_PASSWORD', '')
         self.WP_API_BASE_URL = os.getenv('WP_API_BASE_URL', '')
+        self.WP_CUSTOM_API_KEY = os.getenv('WP_CUSTOM_API_KEY', '')
         
         # 确保WP_API_BASE_URL不为空时再构建自定义API URL
         if self.WP_API_BASE_URL:
@@ -39,6 +40,7 @@ class Config:
         # === 功能开关 ===
         self.ENABLE_FIRECRAWL = self._get_bool('ENABLE_FIRECRAWL', False)
         self.ENABLE_GEMINI_ENHANCEMENT = self._get_bool('ENABLE_GEMINI_ENHANCEMENT', True)
+        self.ENABLE_VIDEO_SEARCH = self._get_bool('ENABLE_VIDEO_SEARCH', False)
         self.DEBUG_MODE = self._get_bool('DEBUG_MODE', True)
         
         # === 处理参数 ===
@@ -106,6 +108,7 @@ class Config:
         print(f"Firecrawl抓取: {'启用' if self.ENABLE_FIRECRAWL else '禁用'}")
         print(f"Firecrawl API: {'已配置' if self.FIRECRAWL_API_KEY else '未配置'}")
         print(f"Gemini增强: {'启用' if self.ENABLE_GEMINI_ENHANCEMENT else '禁用'}")
+        print(f"视频搜索: {'启用' if self.ENABLE_VIDEO_SEARCH else '禁用'}")
         print(f"WordPress: {self.WP_API_BASE_URL or '未配置'}")
         print(f"处理限制: {self.MAX_TOOLS_TO_PROCESS or '无限制'}")
         print(f"调试模式: {'开启' if self.DEBUG_MODE else '关闭'}")

@@ -70,6 +70,9 @@ class GeminiEnhancer:
         enhanced_data = tool_data.copy()
         
         try:
+            # 0. 首先处理关键空字段
+            enhanced_data = self._enhance_critical_empty_fields(enhanced_data)
+            
             # 1. 基础信息增强
             enhanced_data = self._enhance_basic_info(enhanced_data)
             
@@ -91,7 +94,13 @@ class GeminiEnhancer:
             # 7. 定价信息增强
             enhanced_data = self._enhance_pricing(enhanced_data)
             
-            # 8. 填充所有必需的默认字段
+            # 8. 增强FAQ字段
+            enhanced_data = self._enhance_faq(enhanced_data)
+            
+            # 9. 增强功能特性
+            enhanced_data = self._enhance_features(enhanced_data)
+            
+            # 10. 填充所有必需的默认字段
             enhanced_data = self._fill_required_fields(enhanced_data)
             
             logger.success(f"Completed Gemini enhancement: {enhanced_data.get('product_name', 'Unknown')}")
@@ -100,6 +109,95 @@ class GeminiEnhancer:
             logger.error(f"Gemini enhancement failed: {e}")
         
         return enhanced_data
+    
+    def _enhance_critical_empty_fields(self, tool_data: Dict) -> Dict:
+        """专门处理关键的空字段"""
+        product_name = tool_data.get('product_name', '')
+        category = tool_data.get('category', '')
+        
+        # 增强短介绍
+        if not tool_data.get('short_introduction') or tool_data.get('short_introduction').strip() == '':
+            prompt = f"""Write a concise 1-sentence description for the AI tool "{product_name}" in the {category} category.
+Keep it under 100 characters. Focus on what it does. Return only the description."""
+            
+            response = self._call_gemini_api(prompt)
+            if response:
+                tool_data['short_introduction'] = response.strip()
+                logger.debug(f"Enhanced short_introduction for {product_name}")
+        
+        # 增强定价标签
+        if not tool_data.get('general_price_tag') or tool_data.get('general_price_tag').strip() == '':
+            prompt = f"""What is the pricing model for the AI tool "{product_name}"? 
+Return one word: "Free", "Freemium", "Paid", or "Enterprise"."""
+            
+            response = self._call_gemini_api(prompt)
+            if response:
+                tool_data['general_price_tag'] = response.strip()
+                logger.debug(f"Enhanced general_price_tag for {product_name}")
+        
+        # 增强输入类型
+        if not tool_data.get('inputs') or len(tool_data.get('inputs', [])) == 0:
+            prompt = f"""What types of input does the AI tool "{product_name}" accept? 
+Return format: ["Input1", "Input2", "Input3"]
+Common types: Text, Image, Audio, Video, Code, URL, File
+Return only valid JSON array."""
+            
+            response = self._call_gemini_api(prompt)
+            if response:
+                try:
+                    cleaned_response = self._clean_json_response(response)
+                    inputs = json.loads(cleaned_response)
+                    if isinstance(inputs, list) and len(inputs) > 0:
+                        tool_data['inputs'] = inputs
+                        logger.debug(f"Enhanced inputs for {product_name}")
+                except json.JSONDecodeError:
+                    tool_data['inputs'] = ['Text']  # 默认值
+        
+        # 增强输出类型
+        if not tool_data.get('outputs') or len(tool_data.get('outputs', [])) == 0:
+            prompt = f"""What types of output does the AI tool "{product_name}" generate? 
+Return format: ["Output1", "Output2", "Output3"]
+Common types: Text, Image, Audio, Video, Code, Data, Report
+Return only valid JSON array."""
+            
+            response = self._call_gemini_api(prompt)
+            if response:
+                try:
+                    cleaned_response = self._clean_json_response(response)
+                    outputs = json.loads(cleaned_response)
+                    if isinstance(outputs, list) and len(outputs) > 0:
+                        tool_data['outputs'] = outputs
+                        logger.debug(f"Enhanced outputs for {product_name}")
+                except json.JSONDecodeError:
+                    tool_data['outputs'] = ['Text']  # 默认值
+        
+        # 增强UI文本字段
+        ui_text_defaults = {
+            'how_would_you_rate_text': 'How would you rate this tool?',
+            'help_other_people_text': 'Help others by rating this tool.',
+            'your_rating_text': 'Your rating',
+            'post_review_button_text': 'Post Review',
+            'feature_requests_intro': 'Have a feature request?',
+            'request_feature_button_text': 'Request Feature'
+        }
+        
+        for field, default_value in ui_text_defaults.items():
+            if not tool_data.get(field) or tool_data.get(field).strip() == '':
+                tool_data[field] = default_value
+                logger.debug(f"Enhanced {field} for {product_name}")
+        
+        # 增强定价详情
+        if not tool_data.get('pricing_details') or not tool_data.get('pricing_details', {}).get('pricing_model'):
+            pricing_model = tool_data.get('general_price_tag', 'Free')
+            tool_data['pricing_details'] = {
+                'pricing_model': pricing_model,
+                'paid_options_from': 0 if pricing_model == 'Free' else 10,
+                'currency': 'USD',
+                'billing_frequency': 'monthly' if pricing_model != 'Free' else ''
+            }
+            logger.debug(f"Enhanced pricing_details for {product_name}")
+        
+        return tool_data
     
     def _enhance_basic_info(self, tool_data: Dict) -> Dict:
         """增强基础信息"""
@@ -230,37 +328,50 @@ Requirements:
         return tool_data
     
     def _enhance_job_impacts(self, tool_data: Dict) -> Dict:
-        """增强工作影响"""
+        """增强工作影响 - 新的UI卡片格式"""
         if tool_data.get('job_impacts'):
             return tool_data
             
         product_name = tool_data.get('product_name', '')
         category = tool_data.get('category', '')
         
-        prompt = f"""Analyze how the AI tool "{product_name}" in the {category} category impacts different jobs.
+        prompt = f"""Analyze which jobs are most impacted by the AI tool "{product_name}" in the {category} category.
 
 Return format (valid JSON only):
 {{
   "job_impacts": [
     {{
-      "job_type": "Job Title 1",
-      "impact_description": "How this tool impacts this job",
-      "tasks_affected": "Specific tasks that are affected",
-      "ai_skills_required": "AI skills needed to use this tool effectively"
+      "job_type": "Content Creator",
+      "impact": "95%",
+      "tasks": 1245,
+      "ais": 8567,
+      "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=content"
     }},
     {{
-      "job_type": "Job Title 2",
-      "impact_description": "How this tool impacts this job",
-      "tasks_affected": "Specific tasks that are affected",
-      "ai_skills_required": "AI skills needed to use this tool effectively"
+      "job_type": "Software Developer", 
+      "impact": "87%",
+      "tasks": 892,
+      "ais": 6234,
+      "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=developer"
+    }},
+    {{
+      "job_type": "Data Analyst",
+      "impact": "83%", 
+      "tasks": 756,
+      "ais": 5123,
+      "avatar_url": "https://api.dicebear.com/7.x/personas/svg?seed=analyst"
     }}
   ]
 }}
 
 Requirements:
-1. Include 2-3 different job types
-2. Be specific about impact
-3. Return only valid JSON"""
+1. Include 3-4 job types most impacted by this specific tool
+2. Impact: percentage (80%-95% for high impact jobs)
+3. Tasks: realistic number of affected tasks (700-1500)
+4. AIs: number of related AI tools in this space (3000-15000)
+5. Avatar URLs: use dicebear API with job-related seeds
+6. Job types should be specific and realistic (avoid generic titles)
+7. Return only valid JSON, no explanations"""
         
         response = self._call_gemini_api(prompt)
         if response:
@@ -358,6 +469,146 @@ Requirements:
         logger.debug(f"Enhanced pricing for {tool_data.get('product_name', 'Unknown')}")
         return tool_data
     
+    def _enhance_faq(self, tool_data: Dict) -> Dict:
+        """增强FAQ字段"""
+        if tool_data.get('faq') and len(tool_data.get('faq', [])) >= 3:
+            return tool_data
+            
+        product_name = tool_data.get('product_name', '')
+        category = tool_data.get('category', '')
+        
+        prompt = f"""Generate 5 frequently asked questions and answers for the AI tool "{product_name}" in the {category} category.
+
+Return format (valid JSON only):
+{{
+  "faq": [
+    {{
+      "question": "What is {product_name}?",
+      "answer": "Detailed answer..."
+    }},
+    {{
+      "question": "How do I use {product_name}?",
+      "answer": "Step-by-step answer..."
+    }},
+    {{
+      "question": "Is {product_name} free?",
+      "answer": "Pricing information..."
+    }},
+    {{
+      "question": "What are the main features?",
+      "answer": "Feature overview..."
+    }},
+    {{
+      "question": "Who should use {product_name}?",
+      "answer": "Target audience..."
+    }}
+  ]
+}}
+
+Requirements:
+1. Questions should be realistic and commonly asked
+2. Answers should be informative and specific
+3. Return only valid JSON, no explanations"""
+        
+        response = self._call_gemini_api(prompt)
+        if response:
+            try:
+                cleaned_response = self._clean_json_response(response)
+                faq_data = json.loads(cleaned_response)
+                
+                if isinstance(faq_data, dict) and 'faq' in faq_data:
+                    tool_data['faq'] = faq_data['faq']
+                    logger.debug(f"Enhanced FAQ for {product_name}")
+            except json.JSONDecodeError as e:
+                logger.warning(f"Invalid FAQ JSON format: {e}")
+        
+        return tool_data
+    
+    def _enhance_features(self, tool_data: Dict) -> Dict:
+        """增强功能特性字段"""
+        product_name = tool_data.get('product_name', '')
+        category = tool_data.get('category', '')
+        
+        # 增强features列表
+        if not tool_data.get('features') or len(tool_data.get('features', [])) < 3:
+            prompt = f"""List 5-7 key features of the AI tool "{product_name}" in the {category} category.
+
+Return format (valid JSON only):
+{{
+  "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4", "Feature 5"]
+}}
+
+Requirements:
+1. Features should be specific and technical
+2. Focus on what makes this tool unique
+3. Return only valid JSON, no explanations"""
+            
+            response = self._call_gemini_api(prompt)
+            if response:
+                try:
+                    cleaned_response = self._clean_json_response(response)
+                    features_data = json.loads(cleaned_response)
+                    
+                    if isinstance(features_data, dict) and 'features' in features_data:
+                        tool_data['features'] = features_data['features']
+                        logger.debug(f"Enhanced features for {product_name}")
+                except json.JSONDecodeError as e:
+                    logger.warning(f"Invalid features JSON format: {e}")
+        
+        # 增强featured_matches
+        if not tool_data.get('featured_matches') or len(tool_data.get('featured_matches', [])) < 2:
+            prompt = f"""Suggest 3-4 tools that work well together with "{product_name}" for enhanced productivity.
+
+Return format (valid JSON only):
+{{
+  "featured_matches": ["Tool 1", "Tool 2", "Tool 3"]
+}}
+
+Requirements:
+1. Tools should complement {product_name}
+2. Focus on workflow integration
+3. Return only valid JSON, no explanations"""
+            
+            response = self._call_gemini_api(prompt)
+            if response:
+                try:
+                    cleaned_response = self._clean_json_response(response)
+                    matches_data = json.loads(cleaned_response)
+                    
+                    if isinstance(matches_data, dict) and 'featured_matches' in matches_data:
+                        tool_data['featured_matches'] = matches_data['featured_matches']
+                        logger.debug(f"Enhanced featured_matches for {product_name}")
+                except json.JSONDecodeError as e:
+                    logger.warning(f"Invalid featured_matches JSON format: {e}")
+        
+        # 增强other_tools
+        if not tool_data.get('other_tools') or len(tool_data.get('other_tools', [])) < 3:
+            prompt = f"""List 4-5 other AI tools in the same category as "{product_name}" ({category}).
+
+Return format (valid JSON only):
+{{
+  "other_tools": ["Tool 1", "Tool 2", "Tool 3", "Tool 4"]
+}}
+
+Requirements:
+1. Tools should be in the same category
+2. Include both popular and emerging tools
+3. Return only valid JSON, no explanations"""
+            
+            response = self._call_gemini_api(prompt)
+            if response:
+                try:
+                    cleaned_response = self._clean_json_response(response)
+                    other_tools_data = json.loads(cleaned_response)
+                    
+                    if isinstance(other_tools_data, dict) and 'other_tools' in other_tools_data:
+                        tool_data['other_tools'] = other_tools_data['other_tools']
+                        logger.debug(f"Enhanced other_tools for {product_name}")
+                except json.JSONDecodeError as e:
+                    logger.warning(f"Invalid other_tools JSON format: {e}")
+        
+        return tool_data
+
     def _fill_required_fields(self, tool_data: Dict) -> Dict:
         """填充所有必需的默认字段"""
         # 基础信息字段
@@ -369,9 +620,9 @@ Requirements:
             'save_button_text': 'Save',
             'vote_best_ai_tool_text': f"Vote for {tool_data.get('product_name', 'this tool')}",
             
-            # I/O字段
-            'inputs': tool_data.get('inputs', ['Text']),
-            'outputs': tool_data.get('outputs', ['Text']),
+            # I/O字段 - 如果为空数组也需要填充
+            'inputs': tool_data.get('inputs') if tool_data.get('inputs') else ['Text'],
+            'outputs': tool_data.get('outputs') if tool_data.get('outputs') else ['Text'],
             
             # 版本发布
             'releases': [],

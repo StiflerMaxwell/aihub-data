@@ -17,6 +17,7 @@ from firecrawl_scraper import FirecrawlScraper
 from gemini_enhancer import gemini_enhancer
 from favicon_logo_helper import favicon_helper
 from screenshot_helper import screenshot_helper
+from video_helper import video_helper
 from wordpress_importer import WordPressImporter
 
 class AsyncToolProcessor:
@@ -181,6 +182,9 @@ def main():
                         # Screenshot增强
                         enhanced_data = screenshot_helper.enhance_tool_with_screenshot(enhanced_data)
                         
+                        # Video增强
+                        enhanced_data = video_helper.enhance_tool_with_video(enhanced_data)
+                        
                         enhanced_tools.append(enhanced_data)
                         logger.success(f"✓ 完成处理 [{i}]: {enhanced_data.get('product_name', 'Unknown')}")
                         
@@ -326,6 +330,9 @@ def enhance_basic_tool(tool_data):
     
     # Screenshot增强
     tool_data = screenshot_helper.enhance_tool_with_screenshot(tool_data)
+    
+    # Video增强
+    tool_data = video_helper.enhance_tool_with_video(tool_data)
     
     return tool_data
 
