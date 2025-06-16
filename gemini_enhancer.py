@@ -429,6 +429,11 @@ Requirements:
         if not tool_data.get('average_rating'):
             tool_data['average_rating'] = round(random.uniform(3.8, 4.8), 1)
         
+        # 智能生成popularity_score - 基于访问量模拟
+        if not tool_data.get('popularity_score') or tool_data.get('popularity_score') == 0:
+            tool_data['popularity_score'] = self._calculate_popularity_score(tool_data)
+            logger.debug(f"Generated popularity_score: {tool_data['popularity_score']} for {tool_data.get('product_name', 'Unknown')}")
+        
         # 确保评分相关的文本存在
         tool_data['how_would_you_rate_text'] = tool_data.get('how_would_you_rate_text', 'How would you rate this tool?')
         tool_data['help_other_people_text'] = tool_data.get('help_other_people_text', 'Help others by rating this tool.')
@@ -698,6 +703,107 @@ Requirements:
                 logger.warning(f"Invalid releases JSON format: {e}")
         
         return tool_data
+    
+    def _calculate_popularity_score(self, tool_data: Dict) -> int:
+        """
+        智能计算工具的热门度分数 (20-100)
+        基于工具知名度、分类、评分等因素模拟访问量
+        """
+        import random
+        from datetime import datetime
+        
+        product_name = tool_data.get('product_name', '').lower()
+        category = tool_data.get('category', '')
+        average_rating = float(tool_data.get('average_rating', 4.0))
+        user_ratings_count = int(tool_data.get('user_ratings_count', 100))
+        
+        # 知名工具的基础分数映射
+        famous_tools_scores = {
+            'chatgpt': 95, 'gpt': 90, 'openai': 85,
+            'claude': 80, 'anthropic': 75,
+            'gemini': 82, 'google': 78, 'bard': 75,
+            'midjourney': 85, 'dall-e': 80, 'dalle': 80,
+            'stable diffusion': 75, 'stablediffusion': 75,
+            'copilot': 88, 'github copilot': 90, 'microsoft': 75,
+            'notion': 70, 'figma': 72, 'canva': 68,
+            'adobe': 70, 'photoshop': 72,
+            'visual search': 65, 'character ai': 60,
+            'jasper': 58, 'copy.ai': 55, 'copyai': 55,
+            'grammarly': 70, 'writesonic': 52,
+            'perplexity': 62, 'you.com': 45
+        }
+        
+        # 分类基础分数
+        category_scores = {
+            'AI Writing Assistant': 70, 'AI Chatbot': 75,
+            'AI Image Generator': 80, 'AI Code Assistant': 85,
+            'AI Search Engine': 60, 'AI Video Generator': 65,
+            'AI Audio Generator': 55, 'AI Design Tool': 60,
+            'AI Productivity': 65, 'AI Analysis': 50,
+            'Generative AI': 75, 'Machine Learning': 55
+        }
+        
+        # 基础分数 (30-60)
+        base_score = random.randint(35, 60)
+        
+        # 知名度加分 (0-40)
+        fame_bonus = 0
+        for famous_tool, score in famous_tools_scores.items():
+            if famous_tool in product_name:
+                fame_bonus = max(fame_bonus, score - 50)  # 转换为加分值
+                break
+        
+        # 分类加分 (0-30)
+        category_bonus = category_scores.get(category, 45) - 45
+        
+        # 评分影响 (0-15)
+        rating_bonus = int((average_rating - 3.5) * 10)  # 3.5分以上的部分转换为加分
+        rating_bonus = max(0, min(15, rating_bonus))
+        
+        # 用户评分数量影响 (0-10)
+        if user_ratings_count > 500:
+            popularity_bonus = 10
+        elif user_ratings_count > 200:
+            popularity_bonus = 8
+        elif user_ratings_count > 100:
+            popularity_bonus = 5
+        else:
+            popularity_bonus = 2
+        
+        # 时间因素 - 模拟新工具的热度
+        try:
+            creation_date = tool_data.get('date_created', '')
+            if creation_date:
+                created = datetime.fromisoformat(creation_date.replace('Z', '+00:00'))
+                days_old = (datetime.now() - created.replace(tzinfo=None)).days
+                if days_old < 30:  # 最近30天
+                    time_bonus = 15
+                elif days_old < 90:  # 最近90天
+                    time_bonus = 10
+                elif days_old < 180:  # 最近180天
+                    time_bonus = 5
+                else:
+                    time_bonus = 0
+            else:
+                time_bonus = random.randint(0, 8)  # 无日期信息时随机
+        except:
+            time_bonus = random.randint(0, 8)
+        
+        # 随机波动 (-5 到 +8)
+        random_factor = random.randint(-5, 8)
+        
+        # 计算最终分数
+        final_score = base_score + fame_bonus + category_bonus + rating_bonus + popularity_bonus + time_bonus + random_factor
+        
+        # 确保分数在合理范围内 (25-100)
+        final_score = max(25, min(100, final_score))
+        
+        logger.debug(f"Popularity calculation for {tool_data.get('product_name', 'Unknown')}: "
+                    f"base={base_score}, fame={fame_bonus}, category={category_bonus}, "
+                    f"rating={rating_bonus}, popularity={popularity_bonus}, time={time_bonus}, "
+                    f"random={random_factor} -> final={final_score}")
+        
+        return final_score
     
     def _clean_json_response(self, response: str) -> str:
         """清理Gemini响应为有效JSON"""

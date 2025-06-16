@@ -338,40 +338,74 @@ class AIToolImportAPI_MVP {
     }
 
     /**
-     * 获取热门工具
+     * 获取热门工具 - MVP版本，需要从JSON字段中提取popularity_score
      */
     public function get_popular_tools($request) {
         $count = min(max(1, intval($request->get_param('count'))), 50);
         
+        error_log("Popular API: 开始处理，请求数量: $count");
+        
+        // MVP版本：先获取所有工具，然后在代码中排序
         $args = array(
             'post_type' => 'aihub',
             'post_status' => 'publish',
-            'posts_per_page' => $count,
-            'meta_key' => 'popularity_score',
-            'orderby' => 'meta_value_num',
+            'posts_per_page' => -1, // 获取所有工具
+            'orderby' => 'date',
             'order' => 'DESC'
         );
         
         $query = new WP_Query($args);
         $tools = array();
+        $debug_info = array();
+        
+        error_log("Popular API: 找到文章数量: " . $query->found_posts);
         
         if ($query->have_posts()) {
             while ($query->have_posts()) {
                 $query->the_post();
                 $post_id = get_the_ID();
+                $post_title = get_the_title();
+                
+                error_log("Popular API: 处理文章 ID: $post_id, 标题: $post_title");
                 
                 $tool_data = $this->_build_tool_data_mvp($post_id);
                 if ($tool_data) {
+                    $popularity = $tool_data['popularity_score'] ?? 0;
+                    error_log("Popular API: 工具数据构建成功，popularity_score: $popularity");
                     $tools[] = $tool_data;
+                    $debug_info[] = $post_title . " (ID:$post_id, pop:$popularity)";
+                } else {
+                    error_log("Popular API: 工具数据构建失败 - 文章 ID: $post_id");
                 }
             }
         }
         wp_reset_postdata();
         
+        error_log("Popular API: 成功构建工具数量: " . count($tools));
+        
+        // 按popularity_score排序（从JSON字段中读取）
+        usort($tools, function($a, $b) {
+            $score_a = floatval($a['popularity_score'] ?? 0);
+            $score_b = floatval($b['popularity_score'] ?? 0);
+            
+            // 降序排列
+            if ($score_a == $score_b) {
+                return 0;
+            }
+            return ($score_a > $score_b) ? -1 : 1;
+        });
+        
+        // 限制返回数量
+        $tools = array_slice($tools, 0, $count);
+        
+        error_log("Popular API: 最终返回工具数量: " . count($tools));
+        
         $response = new WP_REST_Response(array(
             'success' => true,
             'data' => $tools,
             'count' => count($tools),
+            'debug_found_posts' => $query->found_posts,
+            'debug_processed' => $debug_info,
             'timestamp' => current_time('c')
         ), 200);
         
