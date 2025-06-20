@@ -387,7 +387,7 @@ Requirements:
         return tool_data
     
     def _enhance_alternatives(self, tool_data: Dict) -> Dict:
-        """增强替代工具"""
+        """增强替代工具 - 生成对象格式"""
         if tool_data.get('alternative_tools'):
             return tool_data
             
@@ -396,22 +396,42 @@ Requirements:
         
         prompt = f"""List 5 alternative AI tools to "{product_name}" in the {category} category.
 
-Return format (valid JSON array only):
-["Alternative 1", "Alternative 2", "Alternative 3", "Alternative 4", "Alternative 5"]
+Return format (valid JSON only):
+{{
+  "alternative_tools": [
+    {{
+      "id": 3001,
+      "product_name": "Alternative Tool Name",
+      "product_url": "https://example.com",
+      "short_introduction": "Brief description of the alternative tool",
+      "category": "{category}",
+      "logo_img_url": "https://example.com/favicon.ico",
+      "overview_img_url": "https://example.com/preview.jpg",
+      "general_price_tag": "Free",
+      "average_rating": 4.2,
+      "popularity_score": 90000,
+      "demo_video_url": "https://www.youtube.com/watch?v=example"
+    }}
+  ]
+}}
 
 Requirements:
 1. Include well-known alternatives
 2. Tools should be in the same or similar category
-3. Return only valid JSON array"""
+3. Include realistic URLs and data
+4. Return only valid JSON, no explanations"""
         
         response = self._call_gemini_api(prompt)
         if response:
             try:
                 cleaned_response = self._clean_json_response(response)
-                alternatives = json.loads(cleaned_response)
-                if isinstance(alternatives, list):
+                alternatives_data = json.loads(cleaned_response)
+                if isinstance(alternatives_data, dict) and 'alternative_tools' in alternatives_data:
+                    alternatives = alternatives_data['alternative_tools']
                     tool_data['alternative_tools'] = alternatives
                     tool_data['alternatives_count_text'] = f"See {len(alternatives)} alternatives"
+                    tool_data['view_more_alternatives_text'] = "View more alternatives"
+                    tool_data['if_you_liked_text'] = f"If you liked {product_name}, you might also like:"
                     logger.debug(f"Enhanced alternatives for {product_name}")
             except json.JSONDecodeError as e:
                 logger.warning(f"Invalid alternatives JSON format: {e}")
@@ -560,19 +580,34 @@ Requirements:
                 except json.JSONDecodeError as e:
                     logger.warning(f"Invalid features JSON format: {e}")
         
-        # 增强featured_matches
+        # 增强featured_matches - 生成对象格式
         if not tool_data.get('featured_matches') or len(tool_data.get('featured_matches', [])) < 2:
             prompt = f"""Suggest 3-4 tools that work well together with "{product_name}" for enhanced productivity.
 
 Return format (valid JSON only):
 {{
-  "featured_matches": ["Tool 1", "Tool 2", "Tool 3"]
+  "featured_matches": [
+    {{
+      "id": 1001,
+      "product_name": "Tool Name",
+      "product_url": "https://example.com",
+      "short_introduction": "Brief description of the tool",
+      "category": "Tool Category",
+      "logo_img_url": "https://example.com/favicon.ico",
+      "overview_img_url": "https://example.com/preview.jpg",
+      "general_price_tag": "Freemium",
+      "average_rating": 4.5,
+      "popularity_score": 85000,
+      "demo_video_url": "https://www.youtube.com/watch?v=example"
+    }}
+  ]
 }}
 
 Requirements:
 1. Tools should complement {product_name}
 2. Focus on workflow integration
-3. Return only valid JSON, no explanations"""
+3. Include realistic URLs and data
+4. Return only valid JSON, no explanations"""
             
             response = self._call_gemini_api(prompt)
             if response:
@@ -586,19 +621,34 @@ Requirements:
                 except json.JSONDecodeError as e:
                     logger.warning(f"Invalid featured_matches JSON format: {e}")
         
-        # 增强other_tools
+        # 增强other_tools - 生成对象格式
         if not tool_data.get('other_tools') or len(tool_data.get('other_tools', [])) < 3:
             prompt = f"""List 4-5 other AI tools in the same category as "{product_name}" ({category}).
 
 Return format (valid JSON only):
 {{
-  "other_tools": ["Tool 1", "Tool 2", "Tool 3", "Tool 4"]
+  "other_tools": [
+    {{
+      "id": 2001,
+      "product_name": "Tool Name",
+      "product_url": "https://example.com",
+      "short_introduction": "Brief description of the tool",
+      "category": "{category}",
+      "logo_img_url": "https://example.com/favicon.ico",
+      "overview_img_url": "https://example.com/preview.jpg",
+      "general_price_tag": "Free",
+      "average_rating": 4.3,
+      "popularity_score": 75000,
+      "demo_video_url": "https://www.youtube.com/watch?v=example"
+    }}
+  ]
 }}
 
 Requirements:
 1. Tools should be in the same category
 2. Include both popular and emerging tools
-3. Return only valid JSON, no explanations"""
+3. Include realistic URLs and data
+4. Return only valid JSON, no explanations"""
             
             response = self._call_gemini_api(prompt)
             if response:
@@ -636,11 +686,12 @@ Requirements:
             'view_more_pros_text': 'View more pros',
             'view_more_cons_text': 'View more cons',
             
-            # 替代方案
+            # 替代方案英文文本
+            'alternatives_count_text': 'See 5 alternatives',
             'view_more_alternatives_text': 'View more alternatives',
+            'if_you_liked_text': f"If you liked {tool_data.get('product_name', 'this tool')}, you might also like:",
             
             # 推荐工具
-            'if_you_liked_text': f"If you liked {tool_data.get('product_name', 'this tool')}, you might also like:",
             'featured_matches': [],
             'other_tools': [],
         }

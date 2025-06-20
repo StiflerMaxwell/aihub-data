@@ -652,8 +652,11 @@ class AIToolImportAPI_MVP {
      */
     private function _enhance_tool_data_if_available($tool_data) {
         try {
-            // 执行PHP版本的增强逻辑
-            $enhanced_data = $this->_enhance_with_gemini_logic($tool_data);
+            // 获取当前工具ID
+            $current_tool_id = $tool_data['id'] ?? null;
+            
+            // 执行PHP版本的增强逻辑，传递当前工具ID
+            $enhanced_data = $this->_enhance_with_gemini_logic($tool_data, $current_tool_id);
             error_log("MVP: PHP增强完成 - " . $tool_data['product_name']);
             return $enhanced_data;
         } catch (Exception $e) {
@@ -665,7 +668,7 @@ class AIToolImportAPI_MVP {
     /**
      * 简化的Gemini增强逻辑（PHP版本）
      */
-    private function _enhance_with_gemini_logic($tool_data) {
+    private function _enhance_with_gemini_logic($tool_data, $current_tool_id = null) {
         $product_name = $tool_data['product_name'] ?? '';
         $category = $tool_data['category'] ?? '';
         
@@ -675,22 +678,26 @@ class AIToolImportAPI_MVP {
         $tool_data['initial_release_date'] = '2023';
         $tool_data['message'] = "Try " . $product_name;
         
-        // 增强功能特性 - 强制设置
+        // 增强UI文本 - 强制设置相关工具板块文本
+        $tool_data['alternatives_count_text'] = "See 5 alternatives";
+        $tool_data['view_more_alternatives_text'] = "View more alternatives";
+        $tool_data['if_you_liked_text'] = "If you liked " . $product_name . ", you might also like:";
+        
+        // 增强功能特性 - 强制设置，传递当前工具ID避免推荐自己
         $tool_data['features'] = $this->_generate_default_features($category);
-        $tool_data['featured_matches'] = $this->_generate_featured_matches($category);
-        $tool_data['other_tools'] = $this->_generate_other_tools($category);
+        $tool_data['alternative_tools'] = $this->_generate_alternative_tools_objects($category, $current_tool_id);
+        $tool_data['featured_matches'] = $this->_generate_featured_matches_objects($category, $current_tool_id);
+        $tool_data['other_tools'] = $this->_generate_other_tools_objects($category, $current_tool_id);
+        
+        // 设置alternatives字段（用于旧版本兼容）
+        $tool_data['alternatives'] = $tool_data['alternative_tools'];
         
         // 增强FAQ - 强制设置
         $tool_data['faq'] = $this->_generate_default_faq($product_name, $category);
         
-        // 增强优缺点
-        if (empty($tool_data['pros_list'])) {
-            $tool_data['pros_list'] = $this->_generate_default_pros($category);
-        }
-        
-        if (empty($tool_data['cons_list'])) {
-            $tool_data['cons_list'] = $this->_generate_default_cons($category);
-        }
+        // 增强优缺点 - 强制设置
+        $tool_data['pros_list'] = $this->_generate_default_pros($category);
+        $tool_data['cons_list'] = $this->_generate_default_cons($category);
         
         return $tool_data;
     }
@@ -773,13 +780,471 @@ class AIToolImportAPI_MVP {
     }
     
     /**
+     * 生成默认优点
+     */
+    private function _generate_default_pros($category) {
+        $pros_by_category = array(
+            'AI Writing Assistant' => array('Improves writing efficiency', 'Accurate grammar checking', 'Multi-language support', 'Real-time suggestions'),
+            'AI Image Generator' => array('High creation efficiency', 'Good image quality', 'Diverse styles', 'Easy to operate'),
+            'AI Search Engine' => array('Precise search', 'Comprehensive results', 'Fast response', 'User-friendly interface'),
+            'AI ChatBots' => array('Natural conversations', 'Strong understanding', 'Quick responses', 'Rich features'),
+            'AI Code Assistant' => array('Fast code generation', 'Accurate error detection', 'Multi-language support', 'Low learning curve'),
+            'AI Video Generator' => array('High video quality', 'Strong editing features', 'Rich templates', 'Multiple export formats'),
+            'AI Audio Generator' => array('Clear audio quality', 'Diverse styles', 'Fast generation', 'Easy to use'),
+            'AI Image Editor' => array('Precise editing', 'Comprehensive features', 'Fast processing', 'Natural effects'),
+            'AI Presentation Maker' => array('Beautiful templates', 'Efficient creation', 'Great presentation effects', 'Convenient collaboration'),
+            'AI Music Generator' => array('High music quality', 'Rich styles', 'Flexible creation', 'Clear copyright')
+        );
+        
+        return $pros_by_category[$category] ?? array('Powerful features', 'Easy to use', 'Good results', 'Great value');
+    }
+    
+    /**
+     * 生成默认缺点
+     */
+    private function _generate_default_cons($category) {
+        $cons_by_category = array(
+            'AI Writing Assistant' => array('May produce incorrect information', 'Requires internet connection', 'Limited free features'),
+            'AI Image Generator' => array('Free version limitations', 'Long generation time', 'Copyright concerns'),
+            'AI Search Engine' => array('Results may be incomplete', 'Accuracy needs verification', 'Privacy protection needs improvement'),
+            'AI ChatBots' => array('May have understanding biases', 'Limited context memory', 'Sometimes repetitive answers'),
+            'AI Code Assistant' => array('Code needs verification', 'Limited language support', 'Complex logic handling limitations'),
+            'AI Video Generator' => array('Advanced features require payment', 'Long processing time', 'File size limitations'),
+            'AI Audio Generator' => array('Unstable audio quality', 'Commercial use requires payment', 'Limited format support'),
+            'AI Image Editor' => array('Insufficient fine editing', 'Batch processing limitations', 'Missing professional features'),
+            'AI Presentation Maker' => array('Limited customization options', 'Slow template updates', 'Limited export formats'),
+            'AI Music Generator' => array('Questionable originality', 'Style limitations', 'Insufficient professional production')
+        );
+        
+        return $cons_by_category[$category] ?? array('Feature limitations', 'Requires payment', 'Learning curve');
+    }
+    
+    /**
+     * 生成替代工具列表
+     */
+    private function _generate_alternative_tools($category) {
+        $alternatives_by_category = array(
+            'AI Writing Assistant' => array('Grammarly', 'Jasper', 'Copy.ai', 'Writesonic', 'Rytr'),
+            'AI Image Generator' => array('DALL-E', 'Midjourney', 'Stable Diffusion', 'Adobe Firefly', 'Leonardo AI'),
+            'AI Search Engine' => array('Perplexity AI', 'You.com', 'Bing AI', 'Phind', 'Kagi'),
+            'AI ChatBots' => array('ChatGPT', 'Claude', 'Gemini', 'Microsoft Copilot', 'Perplexity AI'),
+            'AI Code Assistant' => array('GitHub Copilot', 'Tabnine', 'CodeT5', 'Amazon CodeWhisperer', 'Replit AI'),
+            'AI Video Generator' => array('RunwayML', 'Pika Labs', 'HeyGen', 'Synthesia', 'Luma AI'),
+            'AI Audio Generator' => array('ElevenLabs', 'Murf', 'Speechify', 'Descript', 'Resemble AI'),
+            'AI Image Editor' => array('Canva', 'Adobe Photoshop Express', 'Pixlr', 'GIMP', 'Fotor'),
+            'AI Presentation Maker' => array('Gamma', 'Tome', 'Beautiful.ai', 'Plus AI', 'Slidesgo'),
+            'AI Music Generator' => array('Suno', 'Udio', 'Boomy', 'AIVA', 'Mubert'),
+            'AI Character Generator' => array('Character.AI', 'Replika', 'Chai AI', 'Janitor AI', 'Kindroid'),
+            'AI Video Editing' => array('Descript', 'Runway', 'CapCut', 'InVideo', 'Pictory')
+        );
+        
+        return $alternatives_by_category[$category] ?? array('Alternative Tool 1', 'Alternative Tool 2', 'Alternative Tool 3', 'Alternative Tool 4', 'Alternative Tool 5');
+    }
+    
+    /**
+     * 生成完整的替代工具对象列表
+     */
+    private function _generate_alternative_tools_objects($category, $exclude_id = null) {
+        return $this->_get_smart_recommended_tools($category, 5, $exclude_id);
+    }
+    
+    /**
+     * 生成完整的推荐工具对象列表
+     */
+    private function _generate_featured_matches_objects($category, $exclude_id = null) {
+        // 获取相关分类的工具
+        $related_categories = $this->_get_related_categories($category);
+        $all_tools = array();
+        
+        // 从相关分类获取工具，按智能评分排序
+        foreach ($related_categories as $related_cat) {
+            $tools = $this->_get_smart_recommended_tools($related_cat, 2, $exclude_id);
+            $all_tools = array_merge($all_tools, $tools);
+        }
+        
+        // 如果相关工具不够，补充高评分的同类工具
+        if (count($all_tools) < 3) {
+            $same_category_tools = $this->_get_smart_recommended_tools($category, 3 - count($all_tools), $exclude_id);
+            $all_tools = array_merge($all_tools, $same_category_tools);
+        }
+        
+        // 按综合评分排序并返回前3个
+        usort($all_tools, function($a, $b) {
+            $score_a = ($a['average_rating'] * 0.7) + ($a['popularity_score'] / 100000 * 0.3);
+            $score_b = ($b['average_rating'] * 0.7) + ($b['popularity_score'] / 100000 * 0.3);
+            return $score_b <=> $score_a;
+        });
+        
+        return array_slice($all_tools, 0, 3);
+    }
+    
+    /**
+     * 生成完整的其他工具对象列表
+     */
+    private function _generate_other_tools_objects($category, $exclude_id = null) {
+        return $this->_get_smart_recommended_tools($category, 4, $exclude_id);
+    }
+    
+    /**
+     * 已删除虚拟数据库 - 现在使用WordPress真实数据库查询
+     */
+    /*
+    // 已注释掉的虚拟数据库方法 - 现在使用WordPress真实数据库查询
+    private function _get_tools_database() {
+        return array(
+            // AI Image Editors
+            'Canva' => array(
+                'id' => 1001,
+                'product_name' => 'Canva',
+                'product_url' => 'https://www.canva.com',
+                'short_introduction' => 'Design platform for creating stunning visuals',
+                'category' => 'AI Image Editor',
+                'logo_img_url' => 'https://www.canva.com/favicon.ico',
+                'overview_img_url' => 'https://www.canva.com/media/DAFA7CdGjpQ/canva-desktop.jpg',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.7,
+                'popularity_score' => 95000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=7OUZ5bZb9P8'
+            ),
+            'Adobe Photoshop Express' => array(
+                'id' => 1002,
+                'product_name' => 'Adobe Photoshop Express',
+                'product_url' => 'https://www.adobe.com/products/photoshop-express.html',
+                'short_introduction' => 'Quick and easy photo editing app',
+                'category' => 'AI Image Editor',
+                'logo_img_url' => 'https://www.adobe.com/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.5,
+                'popularity_score' => 85000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=J8Azl6RZPsY'
+            ),
+            'Pixlr' => array(
+                'id' => 1003,
+                'product_name' => 'Pixlr',
+                'product_url' => 'https://pixlr.com',
+                'short_introduction' => 'Browser-based photo editor',
+                'category' => 'AI Image Editor',
+                'logo_img_url' => 'https://pixlr.com/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.3,
+                'popularity_score' => 75000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=o-2SkVfzMWA'
+            ),
+            'GIMP' => array(
+                'id' => 1004,
+                'product_name' => 'GIMP',
+                'product_url' => 'https://www.gimp.org',
+                'short_introduction' => 'Free and open-source image editor',
+                'category' => 'AI Image Editor',
+                'logo_img_url' => 'https://www.gimp.org/favicon.ico',
+                'general_price_tag' => 'Free',
+                'average_rating' => 4.2,
+                'popularity_score' => 70000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=bGR6d9YqmkQ'
+            ),
+            'Fotor' => array(
+                'id' => 1005,
+                'product_name' => 'Fotor',
+                'product_url' => 'https://www.fotor.com',
+                'short_introduction' => 'Online photo editor and design maker',
+                'category' => 'AI Image Editor',
+                'logo_img_url' => 'https://www.fotor.com/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.4,
+                'popularity_score' => 68000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=UuGOPCWRdLA'
+            ),
+            
+            // AI ChatBots
+            'ChatGPT' => array(
+                'id' => 2001,
+                'product_name' => 'ChatGPT',
+                'product_url' => 'https://chatgpt.com',
+                'short_introduction' => 'Advanced AI chatbot for conversations and assistance',
+                'category' => 'AI ChatBots',
+                'logo_img_url' => 'https://chatgpt.com/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.8,
+                'popularity_score' => 100000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=JTxsNm9IdYU'
+            ),
+            'Claude' => array(
+                'id' => 2002,
+                'product_name' => 'Claude',
+                'product_url' => 'https://claude.ai',
+                'short_introduction' => 'Helpful, harmless, and honest AI assistant',
+                'category' => 'AI ChatBots',
+                'logo_img_url' => 'https://claude.ai/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.7,
+                'popularity_score' => 90000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=Kn_4d7UJJdg'
+            ),
+            'Gemini' => array(
+                'id' => 2003,
+                'product_name' => 'Gemini',
+                'product_url' => 'https://gemini.google.com',
+                'short_introduction' => 'Google\'s advanced AI assistant',
+                'category' => 'AI ChatBots',
+                'logo_img_url' => 'https://www.google.com/favicon.ico',
+                'general_price_tag' => 'Free',
+                'average_rating' => 4.6,
+                'popularity_score' => 88000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=UIZAiXYceBI'
+            ),
+            'Microsoft Copilot' => array(
+                'id' => 2004,
+                'product_name' => 'Microsoft Copilot',
+                'product_url' => 'https://copilot.microsoft.com',
+                'short_introduction' => 'AI companion for productivity and creativity',
+                'category' => 'AI ChatBots',
+                'logo_img_url' => 'https://www.microsoft.com/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.5,
+                'popularity_score' => 85000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=S7xTBa93TX8'
+            ),
+            'Perplexity AI' => array(
+                'id' => 2005,
+                'product_name' => 'Perplexity AI',
+                'product_url' => 'https://www.perplexity.ai',
+                'short_introduction' => 'AI-powered answer engine',
+                'category' => 'AI ChatBots',
+                'logo_img_url' => 'https://www.perplexity.ai/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.4,
+                'popularity_score' => 80000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=5AjOD8HmUPU'
+            ),
+            
+            // AI Music Generators
+            'Suno' => array(
+                'id' => 3001,
+                'product_name' => 'Suno',
+                'product_url' => 'https://suno.com',
+                'short_introduction' => 'AI music creation platform',
+                'category' => 'AI Music Generator',
+                'logo_img_url' => 'https://suno.com/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.6,
+                'popularity_score' => 75000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=xmQWCvGMH0Y'
+            ),
+            'Udio' => array(
+                'id' => 3002,
+                'product_name' => 'Udio',
+                'product_url' => 'https://www.udio.com',
+                'short_introduction' => 'AI music generation platform',
+                'category' => 'AI Music Generator',
+                'logo_img_url' => 'https://www.udio.com/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.5,
+                'popularity_score' => 70000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=M49dLHcyZVg'
+            ),
+            'Boomy' => array(
+                'id' => 3003,
+                'product_name' => 'Boomy',
+                'product_url' => 'https://boomy.com',
+                'short_introduction' => 'Create original music with AI',
+                'category' => 'AI Music Generator',
+                'logo_img_url' => 'https://boomy.com/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.3,
+                'popularity_score' => 65000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=kZZi9__p9bM'
+            ),
+            'AIVA' => array(
+                'id' => 3004,
+                'product_name' => 'AIVA',
+                'product_url' => 'https://www.aiva.ai',
+                'short_introduction' => 'AI composer for emotional soundtracks',
+                'category' => 'AI Music Generator',
+                'logo_img_url' => 'https://www.aiva.ai/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.4,
+                'popularity_score' => 62000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=Emidxpkyk6o'
+            ),
+            'Mubert' => array(
+                'id' => 3005,
+                'product_name' => 'Mubert',
+                'product_url' => 'https://mubert.com',
+                'short_introduction' => 'AI-generated music for content creators',
+                'category' => 'AI Music Generator',
+                'logo_img_url' => 'https://mubert.com/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.2,
+                'popularity_score' => 58000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+            ),
+            
+            // Professional Tools
+            'Adobe Lightroom' => array(
+                'id' => 4001,
+                'product_name' => 'Adobe Lightroom',
+                'product_url' => 'https://www.adobe.com/products/photoshop-lightroom.html',
+                'short_introduction' => 'Professional photo editing and organization',
+                'category' => 'Photo Editor',
+                'logo_img_url' => 'https://www.adobe.com/favicon.ico',
+                'general_price_tag' => 'Paid',
+                'average_rating' => 4.6,
+                'popularity_score' => 92000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=VGcVta4SdaM'
+            ),
+            'Canva Pro' => array(
+                'id' => 4002,
+                'product_name' => 'Canva Pro',
+                'product_url' => 'https://www.canva.com/pro/',
+                'short_introduction' => 'Professional design tools and templates',
+                'category' => 'Design Tool',
+                'logo_img_url' => 'https://www.canva.com/favicon.ico',
+                'general_price_tag' => 'Paid',
+                'average_rating' => 4.8,
+                'popularity_score' => 98000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=7OUZ5bZb9P8'
+            ),
+            'Sketch' => array(
+                'id' => 4003,
+                'product_name' => 'Sketch',
+                'product_url' => 'https://www.sketch.com',
+                'short_introduction' => 'Digital design toolkit for UI/UX',
+                'category' => 'Design Tool',
+                'logo_img_url' => 'https://www.sketch.com/favicon.ico',
+                'general_price_tag' => 'Paid',
+                'average_rating' => 4.5,
+                'popularity_score' => 82000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=ilcwjXTqyNs'
+            ),
+            'GarageBand' => array(
+                'id' => 4004,
+                'product_name' => 'GarageBand',
+                'product_url' => 'https://www.apple.com/mac/garageband/',
+                'short_introduction' => 'Music creation studio for Mac',
+                'category' => 'Music Production',
+                'logo_img_url' => 'https://www.apple.com/favicon.ico',
+                'general_price_tag' => 'Free',
+                'average_rating' => 4.5,
+                'popularity_score' => 87000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=3VXroWMyAG4'
+            ),
+            'FL Studio' => array(
+                'id' => 4005,
+                'product_name' => 'FL Studio',
+                'product_url' => 'https://www.image-line.com/fl-studio/',
+                'short_introduction' => 'Professional music production software',
+                'category' => 'Music Production',
+                'logo_img_url' => 'https://www.image-line.com/favicon.ico',
+                'general_price_tag' => 'Paid',
+                'average_rating' => 4.7,
+                'popularity_score' => 89000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=pDIsEZsalAo'
+            ),
+            'Ableton Live' => array(
+                'id' => 4006,
+                'product_name' => 'Ableton Live',
+                'product_url' => 'https://www.ableton.com/live/',
+                'short_introduction' => 'Music production and performance software',
+                'category' => 'Music Production',
+                'logo_img_url' => 'https://www.ableton.com/favicon.ico',
+                'general_price_tag' => 'Paid',
+                'average_rating' => 4.6,
+                'popularity_score' => 85000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=9KvNZeaMx3w'
+            ),
+            'Remove.bg' => array(
+                'id' => 4007,
+                'product_name' => 'Remove.bg',
+                'product_url' => 'https://www.remove.bg',
+                'short_introduction' => 'AI-powered background removal tool',
+                'category' => 'AI Image Editor',
+                'logo_img_url' => 'https://www.remove.bg/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.4,
+                'popularity_score' => 78000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=4kB-bgPnIwI'
+            ),
+            'Upscale.media' => array(
+                'id' => 4008,
+                'product_name' => 'Upscale.media',
+                'product_url' => 'https://www.upscale.media',
+                'short_introduction' => 'AI image upscaling tool',
+                'category' => 'AI Image Editor',
+                'logo_img_url' => 'https://www.upscale.media/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.3,
+                'popularity_score' => 72000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=LhF_56SxrGk'
+            ),
+            'Cleanup.pictures' => array(
+                'id' => 4009,
+                'product_name' => 'Cleanup.pictures',
+                'product_url' => 'https://cleanup.pictures',
+                'short_introduction' => 'Remove unwanted objects from images',
+                'category' => 'AI Image Editor',
+                'logo_img_url' => 'https://cleanup.pictures/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.2,
+                'popularity_score' => 68000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=2fPnJ_GzWQs'
+            ),
+            'PhotoRoom' => array(
+                'id' => 4010,
+                'product_name' => 'PhotoRoom',
+                'product_url' => 'https://www.photoroom.com',
+                'short_introduction' => 'AI photo editor for product images',
+                'category' => 'AI Image Editor',
+                'logo_img_url' => 'https://www.photoroom.com/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.5,
+                'popularity_score' => 76000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=Ix8DqBKz7dE'
+            ),
+            'Soundraw' => array(
+                'id' => 4011,
+                'product_name' => 'Soundraw',
+                'product_url' => 'https://soundraw.io',
+                'short_introduction' => 'AI music generator for creators',
+                'category' => 'AI Music Generator',
+                'logo_img_url' => 'https://soundraw.io/favicon.ico',
+                'general_price_tag' => 'Freemium',
+                'average_rating' => 4.3,
+                'popularity_score' => 64000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=aPF2GDx3VpY'
+            ),
+            'Amper Music' => array(
+                'id' => 4012,
+                'product_name' => 'Amper Music',
+                'product_url' => 'https://www.ampermusic.com',
+                'short_introduction' => 'AI music composition platform',
+                'category' => 'AI Music Generator',
+                'logo_img_url' => 'https://www.ampermusic.com/favicon.ico',
+                'general_price_tag' => 'Paid',
+                'average_rating' => 4.1,
+                'popularity_score' => 58000,
+                'demo_video_url' => 'https://www.youtube.com/watch?v=MwtVkPKx3RA'
+            )
+        );
+    }
+    */
+    
+    /**
      * 生成推荐工具
      */
     private function _generate_featured_matches($category) {
         $matches_by_category = array(
-            'AI Writing Assistant' => array('Grammarly', 'Notion AI', 'Jasper'),
+            'AI Writing Assistant' => array('Notion', 'Google Docs', 'Microsoft Word'),
             'AI Image Generator' => array('Photoshop', 'Canva', 'Figma'),
-            'AI Search Engine' => array('Google Lens', 'TinEye', 'Pinterest Lens')
+            'AI Search Engine' => array('Google Lens', 'TinEye', 'Pinterest Lens'),
+            'AI ChatBots' => array('Slack', 'Discord', 'Notion'),
+            'AI Code Assistant' => array('VS Code', 'IntelliJ IDEA', 'Sublime Text'),
+            'AI Video Generator' => array('Adobe Premiere', 'Final Cut Pro', 'DaVinci Resolve'),
+            'AI Audio Generator' => array('Audacity', 'Logic Pro', 'Pro Tools'),
+            'AI Image Editor' => array('Adobe Lightroom', 'Canva Pro', 'Sketch'),
+            'AI Presentation Maker' => array('PowerPoint', 'Keynote', 'Google Slides'),
+            'AI Music Generator' => array('GarageBand', 'FL Studio', 'Ableton Live'),
+            'AI Character Generator' => array('Obsidian', 'Notion', 'World Anvil'),
+            'AI Video Editing' => array('Adobe After Effects', 'Camtasia', 'Filmora')
         );
         
         return $matches_by_category[$category] ?? array('Similar Tool 1', 'Similar Tool 2', 'Similar Tool 3');
@@ -790,12 +1255,21 @@ class AIToolImportAPI_MVP {
      */
     private function _generate_other_tools($category) {
         $tools_by_category = array(
-            'AI Writing Assistant' => array('ChatGPT', 'Claude', 'Jasper', 'Copy.ai'),
-            'AI Image Generator' => array('DALL-E', 'Midjourney', 'Stable Diffusion', 'Adobe Firefly'),
-            'AI Search Engine' => array('Perplexity', 'You.com', 'Bing AI', 'Phind')
+            'AI Writing Assistant' => array('DeepL Write', 'Wordtune', 'ProWritingAid', 'Hemingway Editor'),
+            'AI Image Generator' => array('Artbreeder', 'NightCafe', 'StarryAI', 'Dream by WOMBO'),
+            'AI Search Engine' => array('Brave Search', 'DuckDuckGo', 'Startpage', 'Searx'),
+            'AI ChatBots' => array('Poe', 'Character.AI', 'Chai', 'Replika'),
+            'AI Code Assistant' => array('Codeium', 'CodeGeeX', 'Sourcegraph Cody', 'Cursor'),
+            'AI Video Generator' => array('Kapwing', 'InVideo', 'Pictory', 'Fliki'),
+            'AI Audio Generator' => array('Speechelo', 'Lovo', 'Speechify', 'WellSaid Labs'),
+            'AI Image Editor' => array('Remove.bg', 'Upscale.media', 'Cleanup.pictures', 'PhotoRoom'),
+            'AI Presentation Maker' => array('Prezi', 'Powtoon', 'Genially', 'Emaze'),
+            'AI Music Generator' => array('Soundraw', 'Amper Music', 'Jukedeck', 'Amadeus Code'),
+            'AI Character Generator' => array('Artflow', 'Reface', 'MyHeritage AI', 'FaceApp'),
+            'AI Video Editing' => array('Luma AI', 'Wondershare', 'FlexClip', 'Wave.video')
         );
         
-        return $tools_by_category[$category] ?? array('Alternative 1', 'Alternative 2', 'Alternative 3', 'Alternative 4');
+        return $tools_by_category[$category] ?? array('Other Tool 1', 'Other Tool 2', 'Other Tool 3', 'Other Tool 4');
     }
     
     /**
@@ -949,6 +1423,9 @@ class AIToolImportAPI_MVP {
             'tags' => is_array($tags) ? $tags : array()
         );
         
+        // 应用增强逻辑以填充缺失的字段
+        $tool_data = $this->_enhance_tool_data_if_available($tool_data);
+        
         return $tool_data;
     }
     
@@ -987,7 +1464,7 @@ class AIToolImportAPI_MVP {
         $tags = wp_get_post_terms($post_id, 'post_tag', array('fields' => 'names'));
         
         // 基础的回退数据结构
-        return array(
+        $fallback_data = array(
             'id' => $post_id,
             'title' => $post->post_title,
             'slug' => $post->post_name,
@@ -1010,8 +1487,16 @@ class AIToolImportAPI_MVP {
             // 其他字段设置为默认值
             'inputs' => array(),
             'outputs' => array(),
-            'features' => array()
+            'features' => array(),
+            'alternative_tools' => array(),
+            'featured_matches' => array(),
+            'other_tools' => array(),
+            'pros_list' => array(),
+            'cons_list' => array()
         );
+        
+        // 应用增强逻辑以填充缺失的字段
+        return $this->_enhance_tool_data_if_available($fallback_data);
     }
     
     /**
@@ -1730,6 +2215,248 @@ console.log(result.data[0].pricing_details); // 对象字段</code></pre>
             </div>
         </div>
         <?php
+    }
+    
+    /**
+     * 从WordPress数据库获取真实工具数据
+     */
+    private function _get_real_tools_from_database($category, $limit = 5, $exclude_id = null) {
+        global $wpdb;
+        
+        // 构建查询条件
+        $where_conditions = array("posts.post_status = 'publish'", "posts.post_type = 'aihub'");
+        $join_conditions = array();
+        $params = array();
+        
+        // 添加分类过滤
+        if ($category) {
+            $join_conditions[] = "LEFT JOIN {$wpdb->term_relationships} tr ON posts.ID = tr.object_id";
+            $join_conditions[] = "LEFT JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id";
+            $join_conditions[] = "LEFT JOIN {$wpdb->terms} t ON tt.term_id = t.term_id";
+            $where_conditions[] = "tt.taxonomy = 'category' AND t.name = %s";
+            $params[] = $category;
+        }
+        
+        // 排除当前工具
+        if ($exclude_id) {
+            $where_conditions[] = "posts.ID != %d";
+            $params[] = $exclude_id;
+        }
+        
+        // 构建完整SQL
+        $joins = implode(' ', $join_conditions);
+        $wheres = implode(' AND ', $where_conditions);
+        $limit_clause = $limit ? "LIMIT %d" : "";
+        
+        if ($limit) {
+            $params[] = $limit;
+        }
+        
+        $sql = "SELECT DISTINCT posts.* FROM {$wpdb->posts} posts 
+                {$joins}
+                WHERE {$wheres}
+                ORDER BY RAND()
+                {$limit_clause}";
+        
+        $results = $wpdb->get_results($wpdb->prepare($sql, $params));
+        
+        $tool_objects = array();
+        foreach ($results as $post) {
+            $tool_data = $this->_build_tool_object_from_post($post);
+            if ($tool_data) {
+                $tool_objects[] = $tool_data;
+            }
+        }
+        
+        return $tool_objects;
+    }
+    
+    /**
+     * 从WordPress Post构建工具对象
+     */
+    private function _build_tool_object_from_post($post) {
+        // 获取基础信息
+        $basic_info = get_post_meta($post->ID, 'basic_info', true);
+        $media_data = get_post_meta($post->ID, 'media_data', true);
+        $ratings_data = get_post_meta($post->ID, 'ratings_data', true);
+        
+        // 解析JSON数据
+        $basic_info = $this->_parse_json_field($basic_info);
+        $media_data = $this->_parse_json_field($media_data);
+        $ratings_data = $this->_parse_json_field($ratings_data);
+        
+        // 获取分类
+        $categories = wp_get_post_terms($post->ID, 'category', array('fields' => 'names'));
+        $category = !empty($categories) ? $categories[0] : 'Other';
+        
+        // 构建工具对象
+        return array(
+            'id' => $post->ID,
+            'product_name' => $basic_info['product_name'] ?? $post->post_title,
+            'product_url' => $basic_info['product_url'] ?? '',
+            'short_introduction' => $basic_info['short_introduction'] ?? $post->post_excerpt,
+            'category' => $category,
+            'logo_img_url' => $media_data['logo_img_url'] ?? '',
+            'overview_img_url' => $media_data['overview_img_url'] ?? '',
+            'demo_video_url' => $media_data['demo_video_url'] ?? '',
+            'general_price_tag' => $basic_info['general_price_tag'] ?? 'Unknown',
+            'average_rating' => $ratings_data['average_rating'] ?? 0,
+            'popularity_score' => $ratings_data['popularity_score'] ?? 0
+        );
+    }
+    
+    /**
+     * 动态获取相关分类 - 基于数据库中的实际分类
+     */
+    private function _get_related_categories($category) {
+        global $wpdb;
+        
+        // 首先获取数据库中所有可用的分类
+        $sql = "SELECT DISTINCT t.name as category_name, COUNT(tr.object_id) as tool_count
+                FROM {$wpdb->terms} t
+                INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
+                INNER JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
+                INNER JOIN {$wpdb->posts} p ON tr.object_id = p.ID
+                WHERE tt.taxonomy = 'category' 
+                  AND p.post_type = 'aihub' 
+                  AND p.post_status = 'publish'
+                  AND t.name != %s
+                GROUP BY t.name
+                HAVING tool_count > 0
+                ORDER BY tool_count DESC";
+        
+        $available_categories = $wpdb->get_results($wpdb->prepare($sql, $category));
+        
+        // 智能匹配相关分类
+        $related_categories = $this->_find_semantically_related_categories($category, $available_categories);
+        
+        // 如果没找到相关分类，返回工具数量最多的前3个分类
+        if (empty($related_categories)) {
+            $related_categories = array_slice(
+                array_column($available_categories, 'category_name'), 
+                0, 3
+            );
+        }
+        
+        return $related_categories;
+    }
+    
+    /**
+     * 基于语义匹配找到相关分类
+     */
+    private function _find_semantically_related_categories($target_category, $available_categories) {
+        $related = array();
+        $target_lower = strtolower($target_category);
+        
+        foreach ($available_categories as $cat_data) {
+            $cat_name = $cat_data->category_name;
+            $cat_lower = strtolower($cat_name);
+            
+            // 语义相关性检测
+            if ($this->_categories_are_related($target_lower, $cat_lower)) {
+                $related[] = $cat_name;
+            }
+        }
+        
+        return array_slice($related, 0, 3);
+    }
+    
+    /**
+     * 判断两个分类是否语义相关
+     */
+    private function _categories_are_related($cat1, $cat2) {
+        // 关键词组定义
+        $keyword_groups = array(
+            'music' => array('music', 'audio', 'sound', 'melody', 'song', 'track'),
+            'image' => array('image', 'photo', 'picture', 'visual', 'graphic', 'design'),
+            'video' => array('video', 'movie', 'film', 'animation', 'motion'),
+            'text' => array('text', 'writing', 'content', 'document', 'article'),
+            'code' => array('code', 'programming', 'developer', 'coding', 'software'),
+            'chat' => array('chat', 'conversation', 'assistant', 'bot', 'talk'),
+            'edit' => array('edit', 'editor', 'editing', 'modify', 'enhance'),
+            'generate' => array('generate', 'generator', 'create', 'creation', 'maker'),
+            'ai' => array('ai', 'artificial', 'intelligence', 'machine', 'learning')
+        );
+        
+        // 检查两个分类是否属于同一关键词组
+        foreach ($keyword_groups as $group => $keywords) {
+            $cat1_match = false;
+            $cat2_match = false;
+            
+            foreach ($keywords as $keyword) {
+                if (strpos($cat1, $keyword) !== false) $cat1_match = true;
+                if (strpos($cat2, $keyword) !== false) $cat2_match = true;
+            }
+            
+            // 如果两个分类都匹配同一个关键词组，则认为相关
+            if ($cat1_match && $cat2_match) {
+                return true;
+            }
+        }
+        
+                 return false;
+    }
+    
+    /**
+     * 智能推荐工具 - 基于评分、流行度和活跃度
+     */
+    private function _get_smart_recommended_tools($category, $limit = 5, $exclude_id = null) {
+        global $wpdb;
+        
+        // 构建查询条件
+        $where_conditions = array("posts.post_status = 'publish'", "posts.post_type = 'aihub'");
+        $join_conditions = array();
+        $params = array();
+        
+        // 添加分类过滤
+        if ($category) {
+            $join_conditions[] = "LEFT JOIN {$wpdb->term_relationships} tr ON posts.ID = tr.object_id";
+            $join_conditions[] = "LEFT JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id";
+            $join_conditions[] = "LEFT JOIN {$wpdb->terms} t ON tt.term_id = t.term_id";
+            $where_conditions[] = "tt.taxonomy = 'category' AND t.name = %s";
+            $params[] = $category;
+        }
+        
+        // 排除当前工具
+        if ($exclude_id) {
+            $where_conditions[] = "posts.ID != %d";
+            $params[] = $exclude_id;
+        }
+        
+        // 构建完整SQL - 按最近更新时间和ID排序，优先推荐活跃的工具
+        $joins = implode(' ', $join_conditions);
+        $wheres = implode(' AND ', $where_conditions);
+        $limit_clause = $limit ? "LIMIT %d" : "";
+        
+        if ($limit) {
+            $params[] = $limit * 2; // 获取更多候选，然后筛选
+        }
+        
+        $sql = "SELECT DISTINCT posts.* FROM {$wpdb->posts} posts 
+                {$joins}
+                WHERE {$wheres}
+                ORDER BY posts.post_modified DESC, posts.ID DESC
+                {$limit_clause}";
+        
+        $results = $wpdb->get_results($wpdb->prepare($sql, $params));
+        
+        $tool_objects = array();
+        foreach ($results as $post) {
+            $tool_data = $this->_build_tool_object_from_post($post);
+            if ($tool_data) {
+                $tool_objects[] = $tool_data;
+            }
+        }
+        
+        // 按智能评分排序
+        usort($tool_objects, function($a, $b) {
+            // 综合评分算法：评分权重70%，流行度权重30%
+            $score_a = ($a['average_rating'] * 0.7) + (min($a['popularity_score'] / 100000, 5) * 0.3);
+            $score_b = ($b['average_rating'] * 0.7) + (min($b['popularity_score'] / 100000, 5) * 0.3);
+            return $score_b <=> $score_a;
+        });
+        
+        return array_slice($tool_objects, 0, $limit);
     }
 }
 
